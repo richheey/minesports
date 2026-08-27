@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>거친 물살의 결투 - 마인크래프트 카약 생존 결투 맵</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Jua (Minecraft Pixel Feel) & Noto Sans KR / Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Jua&family=Noto+Sans+KR:wght@300;400;600;700;800&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        jua: ['Jua', 'sans-serif'],
+                        sans: ['Noto Sans KR', 'Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        kayakOrange: {
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                        },
+                        rapidBlue: {
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        foamWhite: '#f0f9ff',
+                        riverDark: '#041525',
+                        riverCard: '#0a2236',
+                        riverBorder: '#163d5c',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #030f1a;
+            color: #f1f5f9;
+            font-family: 'Noto Sans KR', sans-serif;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.15) 0%, transparent 70%);
+        }
+
+        .pixel-font {
+            font-family: 'Jua', sans-serif;
+        }
+
+        /* Kayak Whitewater Glassmorphism */
+        .glass-card {
+            background: linear-gradient(135deg, rgba(10, 34, 54, 0.88) 0%, rgba(4, 21, 37, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 0 10px 30px -10px rgba(2, 132, 199, 0.3);
+        }
+
+        .glass-card-orange {
+            background: linear-gradient(135deg, rgba(40, 20, 10, 0.88) 0%, rgba(10, 25, 40, 0.95) 100%);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(249, 115, 22, 0.35);
+            box-shadow: 0 10px 30px -10px rgba(249, 115, 22, 0.25);
+        }
+
+        /* Kayak Buttons Micro Interactions */
+        .btn-kayak {
+            box-shadow: 0 4px 0 #ea580c, 0 8px 20px rgba(249, 115, 22, 0.4);
+            transition: all 0.15s ease-in-out;
+        }
+        .btn-kayak:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 0 #ea580c, 0 12px 25px rgba(249, 115, 22, 0.5);
+        }
+        .btn-kayak:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #ea580c;
+        }
+
+        .btn-rapid {
+            box-shadow: 0 4px 0 #0284c7, 0 8px 20px rgba(14, 165, 233, 0.3);
+            transition: all 0.15s ease-in-out;
+        }
+        .btn-rapid:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+            box-shadow: 0 6px 0 #0284c7, 0 12px 25px rgba(14, 165, 233, 0.45);
+        }
+
+        /* Animations */
+        @keyframes paddleBob {
+            0%, 100% { transform: translateY(0px) rotate(-3deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+        .animate-paddle {
+            animation: paddleBob 3.5s ease-in-out infinite;
+        }
+
+        .splash-badge {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2) 0%, rgba(14, 165, 233, 0.2) 100%);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+        }
+
+        /* Image Frame Zoom Effect */
+        .char-img-preview {
+            transition: transform 0.3s ease, filter 0.3s ease;
+        }
+        .char-card:hover .char-img-preview {
+            transform: scale(1.04);
+            filter: brightness(1.05);
+        }
+
+        /* Custom Kayak Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #030f1a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #0284c7;
+            border-radius: 5px;
+            border: 2px solid #030f1a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #f97316;
+        }
+    </style>
+</head>
+<body class="selection:bg-orange-500 selection:text-white">
+
+    <!-- Navigation Bar -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-[#030f1a]/90 backdrop-blur-md border-b border-cyan-800/40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo with Kayak Paddle Icon -->
+            <a href="#" class="flex items-center space-x-3 group">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-kayakOrange-500 via-amber-500 to-rapidBlue-500 flex items-center justify-center shadow-lg shadow-orange-500/30 group-hover:scale-105 transition">
+                    <i class="fa-solid fa-person-kayaking text-white text-2xl animate-paddle"></i>
+                </div>
+                <div>
+                    <span class="pixel-font text-xl sm:text-2xl text-white tracking-wide block leading-none flex items-center gap-1.5">
+                        거친 물살의 결투 <i class="fa-solid fa-water text-cyan-400 text-sm"></i>
+                    </span>
+                    <span class="text-[10px] text-orange-400 uppercase tracking-widest font-bold block mt-1">
+                        🛶 Whitewater Kayak Survival PVP
+                    </span>
+                </div>
+            </a>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-8 text-sm font-medium text-slate-300">
+                <a href="#about" class="hover:text-orange-400 transition flex items-center gap-2"><i class="fa-solid fa-water text-cyan-400"></i>카약 맵 소개</a>
+                <a href="#gameplay" class="hover:text-orange-400 transition flex items-center gap-2"><i class="fa-solid fa-route text-emerald-400"></i>급류 코스가이드</a>
+                <a href="#roster" class="hover:text-orange-400 transition flex items-center gap-2"><i class="fa-solid fa-id-card text-orange-400"></i>캐릭터 상세 시트</a>
+                <a href="#rules" class="hover:text-orange-400 transition flex items-center gap-2"><i class="fa-solid fa-life-ring text-rose-400"></i>카약 규칙</a>
+            </nav>
+
+            <!-- CTA Button & Mobile Toggle -->
+            <div class="flex items-center space-x-3">
+                <a href="#download" class="btn-kayak bg-gradient-to-r from-kayakOrange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-bold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-xl pixel-font flex items-center gap-2">
+                    <i class="fa-solid fa-download"></i>
+                    <span>카약 맵 다운로드</span>
+                </a>
+                <button onclick="toggleMobileMenu()" class="md:hidden text-slate-300 hover:text-white text-xl p-2 focus:outline-none" aria-label="메뉴 열기">
+                    <i class="fa-solid fa-bars" id="mobileMenuIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-[#030f1a] border-b border-cyan-800/40 px-4 pt-2 pb-6 space-y-3">
+            <a href="#about" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-orange-400 py-2 text-sm font-medium flex items-center gap-3">
+                <i class="fa-solid fa-water text-cyan-400 w-5"></i>카약 맵 소개
+            </a>
+            <a href="#gameplay" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-orange-400 py-2 text-sm font-medium flex items-center gap-3">
+                <i class="fa-solid fa-route text-emerald-400 w-5"></i>급류 코스가이드
+            </a>
+            <a href="#roster" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-orange-400 py-2 text-sm font-medium flex items-center gap-3">
+                <i class="fa-solid fa-id-card text-orange-400 w-5"></i>캐릭터 상세 시트
+            </a>
+            <a href="#rules" onclick="toggleMobileMenu()" class="block text-slate-300 hover:text-orange-400 py-2 text-sm font-medium flex items-center gap-3">
+                <i class="fa-solid fa-life-ring text-rose-400 w-5"></i>카약 규칙
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="hero" class="pt-32 pb-20 md:pt-40 md:pb-28 relative overflow-hidden bg-gradient-to-b from-[#02182b] via-[#041c30] to-[#030f1a]">
+        <div class="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-cyan-500/15 rounded-full blur-[150px] pointer-events-none"></div>
+        <div class="absolute top-1/3 right-10 w-96 h-96 bg-orange-500/15 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-4xl mx-auto">
+                <div class="inline-flex items-center gap-2 bg-slate-900/90 border border-orange-500/40 text-orange-300 text-xs px-4 py-2 rounded-full pixel-font mb-6 shadow-xl backdrop-blur-md">
+                    <i class="fa-solid fa-person-kayaking text-orange-400 animate-bounce"></i>
+                    <span>WHITEWATER KAYAK PVP MAP · MC JAVA & BEDROCK</span>
+                </div>
+
+                <h1 class="pixel-font text-4xl sm:text-6xl lg:text-7xl font-bold tracking-tight text-white mb-6 leading-tight">
+                    요동치는 급류를 가르는<br/>
+                    <span class="bg-gradient-to-r from-orange-400 via-amber-300 to-cyan-400 bg-clip-text text-transparent drop-shadow-lg">
+                        🌊 카약 패들링 생존 대격전 🛶
+                    </span>
+                </h1>
+
+                <p class="text-slate-200 text-base sm:text-lg lg:text-xl font-light mb-8 max-w-2xl mx-auto leading-relaxed">
+                    거친 물살의 수로를 저어 나가라! 수중 비밀 상자 파밍, 전국 레일 기습, 야생 요새 점령까지! 
+                    대표팀 유니폼을 착용한 5인의 능력을 발휘하여 최후의 승리를 차지하세요.
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                    <a href="#download" class="btn-kayak w-full sm:w-auto bg-gradient-to-r from-kayakOrange-500 to-amber-500 hover:from-orange-400 hover:to-amber-400 text-white font-bold text-base px-8 py-4 rounded-2xl pixel-font flex items-center justify-center gap-3 shadow-2xl">
+                        <i class="fa-solid fa-person-kayaking text-xl"></i>
+                        <span>지금 카약 맵 플레이하기</span>
+                    </a>
+                    <a href="#roster" class="btn-rapid w-full sm:w-auto bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 font-bold text-base px-8 py-4 rounded-2xl pixel-font flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-camera text-lg text-orange-400"></i>
+                        <span>팀원 캐릭터 사진 & 시트 보기</span>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-left">
+                    <div class="glass-card p-4 rounded-2xl border border-cyan-500/30">
+                        <div class="text-xs text-slate-400 mb-1 flex items-center gap-1"><i class="fa-solid fa-users text-orange-400"></i> 플레이 인원</div>
+                        <div class="pixel-font text-lg text-cyan-300 font-bold">2 ~ 12인 멀티</div>
+                    </div>
+                    <div class="glass-card p-4 rounded-2xl border border-cyan-500/30">
+                        <div class="text-xs text-slate-400 mb-1 flex items-center gap-1"><i class="fa-solid fa-water text-cyan-400"></i> 메인 액션</div>
+                        <div class="pixel-font text-lg text-orange-400 font-bold">급류 카약 패들링</div>
+                    </div>
+                    <div class="glass-card p-4 rounded-2xl border border-cyan-500/30">
+                        <div class="text-xs text-slate-400 mb-1 flex items-center gap-1"><i class="fa-solid fa-image text-amber-400"></i> 스킨 시트 사진</div>
+                        <div class="pixel-font text-lg text-amber-300 font-bold">5인 공식 사진 탑재</div>
+                    </div>
+                    <div class="glass-card p-4 rounded-2xl border border-cyan-500/30">
+                        <div class="text-xs text-slate-400 mb-1 flex items-center gap-1"><i class="fa-solid fa-code text-rose-400"></i> 제작 크루</div>
+                        <div class="pixel-font text-lg text-rose-300 font-bold">5인 전문 개발팀</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-24 bg-[#0a0e14] relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-cyan-400 font-bold tracking-widest uppercase text-xs pixel-font bg-cyan-950/80 px-4 py-1.5 rounded-full border border-cyan-800">
+                    Map Overview
+                </span>
+                <h2 class="pixel-font text-3xl sm:text-5xl font-bold mt-4 mb-4 text-white">
+                    '거친 물살의 결투' 4대 매력 포인트
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    단순한 전투를 넘어 스피드, 전략, 야생 생존 요소가 정교하게 결합된 독창적인 마인크래프트 서바이벌 맵입니다.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card rounded-3xl p-6 border border-cyan-500/30 hover:border-cyan-400 transition group">
+                    <div class="w-14 h-14 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-water font-bold"></i>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">역동적인 급류 수로</h3>
+                    <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                        이명훈 코치가 설계한 특수 물 수로와 급류 기믹! 보트의 속도가 배가되며 다채로운 해상 교전이 가능합니다.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 border border-emerald-500/30 hover:border-emerald-400 transition group">
+                    <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-fort-awesome"></i>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">야생 요새 & 파밍</h3>
+                    <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                        주현우 리더가 건설한 요새 거점과 길도현 선수가 은닉한 보물 상자를 찾아 무기와 장비를 확보하세요.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 border border-amber-500/30 hover:border-amber-400 transition group">
+                    <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border border-amber-400/40 text-amber-300 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-train"></i>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">전국 레일 트랙망</h3>
+                    <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                        김승연 엔지니어가 완성한 육지 레일 트랙! 마인카트를 이용해 요새와 수로 사이를 순식간에 기습할 수 있습니다.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-3xl p-6 border border-rose-500/30 hover:border-rose-400 transition group">
+                    <div class="w-14 h-14 rounded-2xl bg-rose-500/20 border border-rose-400/40 text-rose-300 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
+                        <i class="fa-solid fa-shield-cat"></i>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">공정한 규칙 & 스폰</h3>
+                    <p class="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                        남유하 심판이 세팅한 동물 스폰, 월드 배리어 및 팀별 전용 색상 카약으로 공정한 한판 승부가 펼쳐집니다.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Character Sheet & Developer Team Roster Section (With Character Sheet Photos) -->
+    <section id="roster" class="py-24 bg-gradient-to-b from-[#030f1a] via-[#061d30] to-[#030f1a] relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <!-- Section Title -->
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <div class="inline-flex items-center gap-2 splash-badge px-4 py-1.5 rounded-full text-orange-300 text-xs pixel-font mb-3">
+                    <i class="fa-solid fa-camera text-orange-400"></i>
+                    <span>KAYAK TEAM CHARACTER SHEETS & OFFICIAL PHOTOS</span>
+                </div>
+                <h2 class="pixel-font text-3xl sm:text-5xl font-bold text-white mb-4">
+                    팀원 캐릭터 시트 & 스킨 사진
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base">
+                    대한민국 카약 대표팀 유니폼 스킨 사진과 3D 마인크래프트 캐릭터 시트, 대원 능력치를 확인해보세요!
+                </p>
+            </div>
+
+            <!-- Name Filter Bar -->
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-12 bg-slate-900/90 p-3 rounded-2xl border border-cyan-800/60 max-w-3xl mx-auto shadow-2xl backdrop-blur-md">
+                <button onclick="filterName('all')" id="tab-all" class="name-tab active btn-kayak px-4 py-2 rounded-xl text-xs sm:text-sm pixel-font bg-orange-500 text-white font-bold transition">
+                    <i class="fa-solid fa-users mr-1"></i> 전체 보기 (5명)
+                </button>
+                <button onclick="filterName('myeonghoon')" id="tab-myeonghoon" class="name-tab btn-rapid px-4 py-2 rounded-xl text-xs sm:text-sm pixel-font bg-slate-800 text-slate-300 hover:text-white transition">
+                    이명훈 <span class="text-[10px] opacity-75">(코치)</span>
+                </button>
+                <button onclick="filterName('hyunwoo')" id="tab-hyunwoo" class="name-tab btn-rapid px-4 py-2 rounded-xl text-xs sm:text-sm pixel-font bg-slate-800 text-slate-300 hover:text-white transition">
+                    주현우 <span class="text-[10px] opacity-75">(리더)</span>
+                </button>
+                <button onclick="filterName('yuha')" id="tab-yuha" class="name-tab btn-rapid px-4 py-2 rounded-xl text-xs sm:text-sm pixel-font bg-slate-800 text-slate-300 hover:text-white transition">
+                    남유하 <span class="text-[10px] opacity-75">(심판)</span>
+                </button>
+                <button onclick="filterName('dohyun')" id="tab-dohyun" class="name-tab btn-rapid px-4 py-2 rounded-xl text-xs sm:text-sm pixel-font bg-slate-800 text-slate-300 hover:text-white transition">
+                    길도현 <span class="text-[10px] opacity-75">(팀원 #07)</span>
+                </button>
+                <button onclick="filterName('seunghyun')" id="tab-seunghyun" class="name-tab btn-rapid px-4 py-2 rounded-xl text-xs sm:text-sm pixel-font bg-slate-800 text-slate-300 hover:text-white transition">
+                    김승연 <span class="text-[10px] opacity-75">(팀원)</span>
+                </button>
+            </div>
+
+            <!-- Character Cards Grid -->
+            <div id="characterGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Card 1: 이명훈 (코치) -->
+                <div class="char-card myeonghoon glass-card-orange rounded-3xl p-5 relative overflow-hidden transition group flex flex-col justify-between border border-orange-500/40">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-orange-500/20 border border-orange-500/50 text-orange-300 text-xs px-3 py-1 rounded-full pixel-font flex items-center gap-1">
+                                <i class="fa-solid fa-crown text-amber-400"></i> 공동팀장 / 코치
+                            </span>
+                            <span class="text-[11px] text-cyan-300 font-mono"><i class="fa-solid fa-camera mr-1"></i>스킨 사진 보유</span>
+                        </div>
+
+                        <!-- Character Image Box with Reference Photo & Skin Preview -->
+                        <div class="relative w-full h-48 rounded-2xl overflow-hidden mb-4 border-2 border-orange-500/40 bg-slate-900 group cursor-pointer" onclick="openCharModal('myeonghoon')">
+                            <img src="카약 코치 이명훈.png" alt="이명훈 카약 코치 스킨 시트 사진" class="w-full h-full object-cover object-top char-img-preview">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                            <div class="absolute bottom-2 left-3 right-3 flex justify-between items-end">
+                                <div>
+                                    <span class="text-[10px] text-orange-400 font-bold block uppercase tracking-wider">대한민국 카약 대표팀</span>
+                                    <span class="pixel-font text-2xl text-white">이명훈 코치</span>
+                                </div>
+                                <span class="bg-orange-500 text-white text-[10px] px-2.5 py-1 rounded-lg pixel-font flex items-center gap-1 shadow-md">
+                                    <i class="fa-solid fa-magnifying-glass-plus"></i> 시트 사진 열기
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Preview -->
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 mb-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🛶 급류 조종 & 수로 설계</span>
+                                <span class="pixel-font text-cyan-300 font-bold">95 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-cyan-500 to-cyan-300 h-full rounded-full" style="width: 95%;"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🧭 경기 기획 & 코칭</span>
+                                <span class="pixel-font text-orange-400 font-bold">98 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-orange-500 to-amber-300 h-full rounded-full" style="width: 98%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-300 mb-4 space-y-1 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                            <div><strong class="text-orange-400">🛠️ 담당:</strong> 수로·급류 기믹 설계, 레일망 구축</div>
+                            <div><strong class="text-cyan-300">⚡ 패들:</strong> 급류 마스터 (가속 +20%)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="openCharModal('myeonghoon')" class="btn-kayak w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 rounded-xl text-xs pixel-font flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span>상세 시트 & 사진 전체보기</span>
+                    </button>
+                </div>
+
+                <!-- Card 2: 주현우 (리더) -->
+                <div class="char-card hyunwoo glass-card-orange rounded-3xl p-5 relative overflow-hidden transition group flex flex-col justify-between border border-amber-500/40">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-amber-500/20 border border-amber-500/50 text-amber-300 text-xs px-3 py-1 rounded-full pixel-font flex items-center gap-1">
+                                <i class="fa-solid fa-crown text-amber-400"></i> 공동팀장 / 리더
+                            </span>
+                            <span class="text-[11px] text-amber-300 font-mono"><i class="fa-solid fa-camera mr-1"></i>스킨 사진 보유</span>
+                        </div>
+
+                        <!-- Character Image Box -->
+                        <div class="relative w-full h-48 rounded-2xl overflow-hidden mb-4 border-2 border-amber-500/40 bg-slate-900 group cursor-pointer" onclick="openCharModal('hyunwoo')">
+                            <img src="카약 팀장 주현우.png" alt="주현우 카약 리더 스킨 시트 사진" class="w-full h-full object-cover object-top char-img-preview">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                            <div class="absolute bottom-2 left-3 right-3 flex justify-between items-end">
+                                <div>
+                                    <span class="text-[10px] text-amber-400 font-bold block uppercase tracking-wider">대한민국 카약 대표팀</span>
+                                    <span class="pixel-font text-2xl text-white">주현우 리더</span>
+                                </div>
+                                <span class="bg-amber-500 text-white text-[10px] px-2.5 py-1 rounded-lg pixel-font flex items-center gap-1 shadow-md">
+                                    <i class="fa-solid fa-magnifying-glass-plus"></i> 시트 사진 열기
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Preview -->
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 mb-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🏰 요새 건축 & 인프라</span>
+                                <span class="pixel-font text-amber-300 font-bold">98 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full rounded-full" style="width: 98%;"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🛡️ 거점 방어 & 무기 은닉</span>
+                                <span class="pixel-font text-cyan-300 font-bold">92 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-cyan-500 to-blue-300 h-full rounded-full" style="width: 92%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-300 mb-4 space-y-1 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                            <div><strong class="text-amber-400">🛠️ 담당:</strong> 야생 요새 건축, 무기상자 은닉</div>
+                            <div><strong class="text-amber-300">⚡ 패들:</strong> 요새의 가호 (방어력 +15%)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="openCharModal('hyunwoo')" class="btn-kayak w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3 rounded-xl text-xs pixel-font flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span>상세 시트 & 사진 전체보기</span>
+                    </button>
+                </div>
+
+                <!-- Card 3: 남유하 (심판) -->
+                <div class="char-card yuha glass-card rounded-3xl p-5 relative overflow-hidden transition group flex flex-col justify-between border border-cyan-500/40">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-cyan-950 border border-cyan-700 text-cyan-300 text-xs px-3 py-1 rounded-full pixel-font flex items-center gap-1">
+                                <i class="fa-solid fa-whistle text-cyan-400"></i> 팀원 / 심판
+                            </span>
+                            <span class="text-[11px] text-cyan-300 font-mono"><i class="fa-solid fa-camera mr-1"></i>스킨 사진 보유</span>
+                        </div>
+
+                        <!-- Character Image Box -->
+                        <div class="relative w-full h-48 rounded-2xl overflow-hidden mb-4 border-2 border-cyan-500/40 bg-slate-900 group cursor-pointer" onclick="openCharModal('yuha')">
+                            <img src="카약 심판 남유하.png" alt="남유하 카약 심판 스킨 시트 사진" class="w-full h-full object-cover object-top char-img-preview">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                            <div class="absolute bottom-2 left-3 right-3 flex justify-between items-end">
+                                <div>
+                                    <span class="text-[10px] text-cyan-400 font-bold block uppercase tracking-wider">대한민국 카약 대표팀</span>
+                                    <span class="pixel-font text-2xl text-white">남유하 심판</span>
+                                </div>
+                                <span class="bg-cyan-600 text-white text-[10px] px-2.5 py-1 rounded-lg pixel-font flex items-center gap-1 shadow-md">
+                                    <i class="fa-solid fa-magnifying-glass-plus"></i> 시트 사진 열기
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Preview -->
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 mb-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🌐 월드 배리어 & 규칙 통제</span>
+                                <span class="pixel-font text-rose-300 font-bold">96 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-rose-500 to-pink-300 h-full rounded-full" style="width: 96%;"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🦌 동물 스폰 & 생존 세팅</span>
+                                <span class="pixel-font text-emerald-300 font-bold">94 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full" style="width: 94%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-300 mb-4 space-y-1 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                            <div><strong class="text-cyan-400">🛠️ 담당:</strong> 동물 스폰, 월드 배리어, 카약 배치</div>
+                            <div><strong class="text-cyan-300">⚡ 패들:</strong> 야생의 휘슬 (식량수급 1.5배)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="openCharModal('yuha')" class="btn-rapid w-full bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 py-3 rounded-xl text-xs pixel-font flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span>상세 시트 & 사진 전체보기</span>
+                    </button>
+                </div>
+
+                <!-- Card 4: 길도현 (선수 #07) -->
+                <div class="char-card dohyun glass-card rounded-3xl p-5 relative overflow-hidden transition group flex flex-col justify-between border border-blue-500/40">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-blue-950 border border-blue-700 text-blue-300 text-xs px-3 py-1 rounded-full pixel-font flex items-center gap-1">
+                                <i class="fa-solid fa-crosshairs text-blue-400"></i> 팀원 / 에이스 #07
+                            </span>
+                            <span class="text-[11px] text-blue-300 font-mono"><i class="fa-solid fa-camera mr-1"></i>스킨 사진 보유</span>
+                        </div>
+
+                        <!-- Character Image Box -->
+                        <div class="relative w-full h-48 rounded-2xl overflow-hidden mb-4 border-2 border-blue-500/40 bg-slate-900 group cursor-pointer" onclick="openCharModal('dohyun')">
+                            <img src="카약 팀원 길도현.png" alt="길도현 카약 선수 스킨 시트 사진" class="w-full h-full object-cover object-top char-img-preview">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                            <div class="absolute bottom-2 left-3 right-3 flex justify-between items-end">
+                                <div>
+                                    <span class="text-[10px] text-blue-400 font-bold block uppercase tracking-wider">대한민국 카약 대표팀 #07</span>
+                                    <span class="pixel-font text-2xl text-white">길도현 선수</span>
+                                </div>
+                                <span class="bg-blue-600 text-white text-[10px] px-2.5 py-1 rounded-lg pixel-font flex items-center gap-1 shadow-md">
+                                    <i class="fa-solid fa-magnifying-glass-plus"></i> 시트 사진 열기
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Preview -->
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 mb-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">💎 보물 상자 파밍 & 무기</span>
+                                <span class="pixel-font text-amber-300 font-bold">97 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full rounded-full" style="width: 97%;"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🎨 팀 컬러 & 식별 시스템</span>
+                                <span class="pixel-font text-indigo-300 font-bold">92 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-indigo-500 to-blue-300 h-full rounded-full" style="width: 92%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-300 mb-4 space-y-1 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                            <div><strong class="text-blue-400">🛠️ 담당:</strong> 배리어 배치, 기습 무기상자, 팀컬러</div>
+                            <div><strong class="text-blue-300">⚡ 패들:</strong> 트레저 스나이퍼 (상자 감지)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="openCharModal('dohyun')" class="btn-rapid w-full bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-500/40 py-3 rounded-xl text-xs pixel-font flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span>상세 시트 & 사진 전체보기</span>
+                    </button>
+                </div>
+
+                <!-- Card 5: 김승연 (선수) -->
+                <div class="char-card seunghyun glass-card rounded-3xl p-5 relative overflow-hidden transition group flex flex-col justify-between border border-teal-500/40">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="bg-teal-950 border border-teal-700 text-teal-300 text-xs px-3 py-1 rounded-full pixel-font flex items-center gap-1">
+                                <i class="fa-solid fa-train text-teal-400"></i> 팀원 / 선수
+                            </span>
+                            <span class="text-[11px] text-teal-300 font-mono"><i class="fa-solid fa-camera mr-1"></i>스킨 사진 보유</span>
+                        </div>
+
+                        <!-- Character Image Box -->
+                        <div class="relative w-full h-48 rounded-2xl overflow-hidden mb-4 border-2 border-teal-500/40 bg-slate-900 group cursor-pointer" onclick="openCharModal('seunghyun')">
+                            <img src="카약 팀원 김승연.png" alt="김승연 카약 선수 스킨 시트 사진" class="w-full h-full object-cover object-top char-img-preview">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/20 to-transparent"></div>
+                            <div class="absolute bottom-2 left-3 right-3 flex justify-between items-end">
+                                <div>
+                                    <span class="text-[10px] text-teal-400 font-bold block uppercase tracking-wider">대한민국 카약 대표팀</span>
+                                    <span class="pixel-font text-2xl text-white">김승연 선수</span>
+                                </div>
+                                <span class="bg-teal-600 text-white text-[10px] px-2.5 py-1 rounded-lg pixel-font flex items-center gap-1 shadow-md">
+                                    <i class="fa-solid fa-magnifying-glass-plus"></i> 시트 사진 열기
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Stats Preview -->
+                        <div class="bg-slate-900/90 p-3 rounded-xl border border-slate-800 mb-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🚃 마인카트 & 레일 트랙망</span>
+                                <span class="pixel-font text-teal-300 font-bold">98 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-teal-500 to-emerald-300 h-full rounded-full" style="width: 98%;"></div>
+                            </div>
+
+                            <div class="flex items-center justify-between text-xs">
+                                <span class="text-slate-300">🛑 외각 경계 배리어 세팅</span>
+                                <span class="pixel-font text-rose-300 font-bold">91 / 100</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-rose-500 to-pink-300 h-full rounded-full" style="width: 91%;"></div>
+                            </div>
+                        </div>
+
+                        <div class="text-xs text-slate-300 mb-4 space-y-1 bg-slate-900/60 p-3 rounded-xl border border-slate-800/80">
+                            <div><strong class="text-teal-400">🛠️ 담당:</strong> 전국 레일망, 마인카트, 외각 배리어</div>
+                            <div><strong class="text-teal-300">⚡ 패들:</strong> 레일 라이더 (트랙 가속 +25%)</div>
+                        </div>
+                    </div>
+
+                    <button onclick="openCharModal('seunghyun')" class="btn-rapid w-full bg-slate-800 hover:bg-slate-700 text-teal-300 border border-teal-500/40 py-3 rounded-xl text-xs pixel-font flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-address-card"></i>
+                        <span>상세 시트 & 사진 전체보기</span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Rules Section -->
+    <section id="rules" class="py-20 bg-[#0d1117] relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <span class="text-rose-400 font-bold tracking-widest uppercase text-xs pixel-font bg-rose-950/80 px-4 py-1.5 rounded-full border border-rose-800">
+                    Strict Regulations
+                </span>
+                <h2 class="pixel-font text-3xl sm:text-5xl font-bold mt-4 mb-4 text-white">
+                    공정한 게임을 위한 5대 플레이 규칙
+                </h2>
+                <p class="text-slate-400 text-sm sm:text-base">
+                    모든 플레이어가 스릴 있고 매너 있게 즐기기 위해 반드시 지켜야 할 엄격한 규칙입니다.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6 relative group hover:border-rose-500/50 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-ban font-bold"></i>
+                        </div>
+                        <span class="pixel-font text-xs text-rose-400 bg-rose-950/80 px-3 py-1 rounded-full border border-rose-800">RULE 01</span>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">맵 부수기 금지</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        자연 지형, 수수로, 건축물, 레일 등 설치된 블록을 의도적으로 파괴하는 행위는 엄격히 금지됩니다.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 relative group hover:border-rose-500/50 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <span class="pixel-font text-xs text-rose-400 bg-rose-950/80 px-3 py-1 rounded-full border border-rose-800">RULE 02</span>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">지정 장소 & 시간 외 PVP 금지</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        게임 시작 신호 전이나 안전 구역 등 지정된 시간과 장소 외에서의 PVP 공격은 금지됩니다.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 relative group hover:border-rose-500/50 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <span class="pixel-font text-xs text-rose-400 bg-rose-950/80 px-3 py-1 rounded-full border border-rose-800">RULE 03</span>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">정해진 방법 외 무기 제작 금지</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        임의 조합법을 통한 강력 무기 제작은 불가하며, 오직 숨겨진 상자 파밍이나 정해진 루트를 사용해야 합니다.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 relative group hover:border-rose-500/50 transition">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-border-none"></i>
+                        </div>
+                        <span class="pixel-font text-xs text-rose-400 bg-rose-950/80 px-3 py-1 rounded-full border border-rose-800">RULE 04</span>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">맵 탈출 금지</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        설치된 배리어 영역을 벗어나거나 버그를 이용하여 월드 외각으로 탈출하는 행위는 제한됩니다.
+                    </p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 relative group hover:border-rose-500/50 transition md:col-span-2 lg:col-span-2">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-user-xmark"></i>
+                        </div>
+                        <span class="pixel-font text-xs text-rose-400 bg-rose-950/80 px-3 py-1 rounded-full border border-rose-800">RULE 05</span>
+                    </div>
+                    <h3 class="pixel-font text-xl text-white mb-2">팀킬 (Team Kill) 엄격 금지</h3>
+                    <p class="text-slate-300 text-sm leading-relaxed">
+                        같은 팀원을 고의로 공격하거나 트롤링하는 행위는 엄격 금지됩니다. 팀원과의 유기적인 협력으로 최종 승리를 달성하세요!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="py-24 bg-gradient-to-b from-[#0d1117] via-[#091e30] to-[#07111a] relative overflow-hidden">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="glass-card rounded-3xl p-8 sm:p-14 text-center border border-cyan-500/40 shadow-2xl relative overflow-hidden">
+                <span class="inline-block bg-cyan-950/80 border border-cyan-700 text-cyan-300 text-xs px-4 py-1.5 rounded-full pixel-font mb-4">
+                    Ready to Kayak Challenge
+                </span>
+                
+                <h2 class="pixel-font text-3xl sm:text-5xl font-bold text-white mb-4 leading-tight">
+                    '거친 물살의 결투' 전장으로 떠날 준비가 되셨나요?
+                </h2>
+                
+                <p class="text-slate-300 text-base sm:text-lg mb-8 max-w-2xl mx-auto font-light leading-relaxed">
+                    지금 친구들과 멀티플레이 서버를 열고, 카약 노를 저으며 급류와 야생 속 최후의 승자가 되어보세요!
+                </p>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <button onclick="openModal('downloadModal')" class="btn-kayak bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-white font-bold px-8 py-4 rounded-2xl text-lg pixel-font shadow-lg flex items-center justify-center gap-3 w-full sm:w-auto">
+                        <i class="fa-solid fa-cloud-arrow-down text-xl"></i>
+                        <span>카약 맵 파일 다운로드 (.zip)</span>
+                    </button>
+                    <button onclick="openModal('guideModal')" class="btn-rapid bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 font-bold px-8 py-4 rounded-2xl text-lg pixel-font flex items-center justify-center gap-3 w-full sm:w-auto">
+                        <i class="fa-solid fa-book-bookmark text-xl text-cyan-400"></i>
+                        <span>서버 가이드 & 설정 방법</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal: Detailed Character Sheet Popup (With Photo Sheet Viewer) -->
+    <div id="charModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md hidden p-3 sm:p-6 overflow-y-auto">
+        <div class="glass-card rounded-3xl p-5 sm:p-8 max-w-4xl w-full border border-orange-500/50 shadow-2xl relative my-6 text-slate-100 max-h-[92vh] overflow-y-auto">
+            <button onclick="closeModal('charModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-2xl z-20 p-2 bg-slate-900/80 rounded-full w-10 h-10 flex items-center justify-center border border-slate-700">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Char Modal Dynamic Content Target -->
+            <div id="charModalContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal: Download Popup -->
+    <div id="downloadModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-md w-full border border-cyan-500/50 shadow-2xl text-center relative">
+            <button onclick="closeModal('downloadModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 border border-cyan-400/40 text-cyan-400 flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+
+            <h3 class="pixel-font text-2xl text-white mb-2">'거친 물살의 결투' 다운로드</h3>
+            <p class="text-slate-300 text-xs sm:text-sm mb-6 leading-relaxed">
+                마인크래프트 자바 / 베드락 에디션 호환 카약 서바이벌 맵 파일이 준비되었습니다. 압축 해제 후 saves 폴더에 붙여넣으세요!
+            </p>
+
+            <div class="bg-slate-900 p-3 rounded-xl border border-slate-800 text-left text-xs text-slate-400 mb-6 space-y-1 font-mono">
+                <div>파일명: Duel_in_Rough_Rapids_v1.0.zip</div>
+                <div>권장 버젼: Minecraft Java / Bedrock Latest</div>
+                <div>권장 인원: 2~12인 멀티플레이</div>
+            </div>
+
+            <button onclick="closeModal('downloadModal'); showNotification('다운로드가 시작되었습니다!');" class="btn-kayak bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 px-6 rounded-xl text-sm pixel-font w-full">
+                다운로드 시작하기
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Guide Popup -->
+    <div id="guideModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md hidden p-4">
+        <div class="glass-card rounded-3xl p-6 sm:p-8 max-w-md w-full border border-emerald-500/50 shadow-2xl text-center relative">
+            <button onclick="closeModal('guideModal')" class="absolute top-4 right-4 text-slate-400 hover:text-white text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="w-16 h-16 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-compass"></i>
+            </div>
+
+            <h3 class="pixel-font text-2xl text-white mb-2">서버 개설 & 시작 안내</h3>
+            <div class="text-left text-slate-300 text-xs leading-relaxed space-y-3 mb-6">
+                <div class="flex gap-2">
+                    <span class="text-emerald-400 font-bold">1.</span>
+                    <span>커맨드 블록(Command Block) 활성화를 서버 설정에서 <strong>enable-command-block=true</strong>로 설정해 주세요.</span>
+                </div>
+                <div class="flex gap-2">
+                    <span class="text-emerald-400 font-bold">2.</span>
+                    <span>난이도는 <strong>쉬움 이상</strong>으로 설정하여 동물 및 허기 시스템이 정상 동작하도록 해주세요.</span>
+                </div>
+                <div class="flex gap-2">
+                    <span class="text-emerald-400 font-bold">3.</span>
+                    <span>팀별로 부여된 고유 컬러 보트와 출발 구역을 확인 후 게임 스타트 버튼을 누르세요!</span>
+                </div>
+            </div>
+
+            <button onclick="closeModal('guideModal')" class="btn-kayak bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 px-6 rounded-xl text-sm pixel-font w-full">
+                확인했습니다
+            </button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 bg-cyan-900 border border-cyan-400 text-white px-5 py-3 rounded-2xl shadow-2xl text-sm pixel-font flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <i class="fa-solid fa-circle-info text-cyan-300 text-lg"></i>
+        <span id="toastMsg">알림 메시지</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#080b10] border-t border-slate-800/80 py-12 text-center text-slate-500 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-center items-center gap-2 mb-3">
+                <div class="w-7 h-7 rounded-lg bg-cyan-600 flex items-center justify-center text-white text-xs">
+                    <i class="fa-solid fa-person-kayaking"></i>
+                </div>
+                <span class="pixel-font text-xl text-white tracking-wide">거친 물살의 결투 (Duel in Rough Rapids)</span>
+            </div>
+            
+            <p class="mb-4 text-slate-400">
+                마인크래프트 카약 서바이벌 대전 맵 · 대한민국 카약 대표팀 스킨 제작: 이명훈, 주현우, 남유하, 길도현, 김승연
+            </p>
+
+            <div class="flex flex-wrap justify-center gap-4 text-slate-500 text-[11px] mb-2">
+                <span>공동팀장: 이명훈 (코치 스킨)</span>
+                <span>공동팀장: 주현우 (리더 스킨)</span>
+                <span>팀원: 남유하 (심판 스킨)</span>
+            </div>
+            <div class="flex flex-wrap justify-center gap-3 text-slate-500 text-[11px]">
+                <span>팀원: 길도현 (선수 #07 스킨)</span>
+                <span>팀원: 김승연 (선수 스킨)</span>
+            </div>
+
+            <p class="mt-6 text-[10px] text-slate-600">
+                Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle Mobile Navigation Menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        // Modal Open / Close Logic
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) modal.classList.add('hidden');
+        }
+
+        // Character Roster Filter Tabs
+        function filterName(name) {
+            const cards = document.querySelectorAll('.char-card');
+            const tabs = document.querySelectorAll('.name-tab');
+
+            tabs.forEach(tab => {
+                tab.classList.remove('bg-orange-500', 'text-white', 'btn-kayak');
+                tab.classList.add('bg-slate-800', 'text-slate-300', 'btn-rapid');
+            });
+
+            const activeTab = document.getElementById(`tab-${name}`);
+            if (activeTab) {
+                activeTab.classList.remove('bg-slate-800', 'text-slate-300', 'btn-rapid');
+                activeTab.classList.add('bg-orange-500', 'text-white', 'btn-kayak');
+            }
+
+            cards.forEach(card => {
+                if (name === 'all' || card.classList.contains(name)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        // Character Database including exact Photo Sheet files
+        const charactersData = {
+            myeonghoon: {
+                name: "이명훈",
+                role: "공동팀장 / 코치 (Co-Leader & Coach)",
+                title: "급류의 아쿠아 네비게이터",
+                skin: "대한민국 카약 대표팀 코치 유니폼 스킨",
+                imageSrc: "카약 코치 이명훈.png",
+                icon: "fa-user-ninja",
+                badgeColor: "orange",
+                kayakType: "프로 스피드 패들 카약 (급류 전용)",
+                stats: { speed: 95, tactics: 98, building: 85, combat: 88, paddle: 96 },
+                skillName: "급류 마스터 (Rapid Navigator)",
+                skillDesc: "거친 물살 수로 및 급류 구간 진입 시 패들링 가속도가 +20% 증가하며, 와류에 휘말릴 때 보트 뒤집힘을 완벽 차단합니다.",
+                equipments: [
+                    "🏆 대표팀 코치 전용 카약 & 카본 패들",
+                    "🧭 급류 수로 정밀 지형 지도 & 나침반",
+                    "⚡ 스피드 부스트 서바이벌 물약",
+                    "⏱️ 코치 스톱워치 & 클립보드"
+                ],
+                devRole: "프로젝트 총괄 아이디어 구상, 수로 및 급류 시스템 설계, 비밀 무기 배치, 육지 레일망 공동 세팅",
+                bio: "대한민국 카약 대표팀 코치 공식 스킨을 착용한 총괄 디자이너! '거친 물살의 결투' 맵의 뼈대와 기믹을 기획했으며, 스톱워치와 클립보드를 든 차분한 지도자 스타일로 정교한 경기 수로를 디자인했습니다."
+            },
+            hyunwoo: {
+                name: "주현우",
+                role: "공동팀장 / 리더 (Co-Leader & Leader)",
+                title: "철통 요새의 건축 거장",
+                skin: "대한민국 카약 대표팀 리더 유니폼 스킨",
+                imageSrc: "카약 팀장 주현우.png",
+                icon: "fa-crown",
+                badgeColor: "amber",
+                kayakType: "아머드 포트리스 카약 (장갑 강화형)",
+                stats: { speed: 86, tactics: 92, building: 98, combat: 90, paddle: 89 },
+                skillName: "요새의 가호 (Fortress Citadel)",
+                skillDesc: "주요 야생 거점 및 건축물 영역 내에서 방어력이 +15% 상승하며, 무기 상자 탐색 속도가 2배 빨라집니다.",
+                equipments: [
+                    "🏰 주황색 전용 전투 강화 카약",
+                    "🔨 마인크래프트 아키텍트 건축망치",
+                    "🔍 숨겨진 무기 상자 탐지 소나",
+                    "🏹 요새 수호 전용 장궁 & 화살"
+                ],
+                devRole: "야생 요새 거점 대형 건축물 제작, 주 육지 레일 네트워크 구축, 보물 상자 내부 고성능 무기 은닉",
+                bio: "대한민국 카약 대표팀 리더 스킨을 착용한 메인 아키텍트! 태극 문양과 물결 디자인 유니폼을 입고 강한 추진력으로 맵 내부 거대 요새 구조물과 레일 트랙을 완공했습니다."
+            },
+            yuha: {
+                name: "남유하",
+                role: "팀원 / 심판 (Team Member & Referee)",
+                title: "야생의 파수꾼 & 스폰 가디언",
+                skin: "대한민국 카약 협회 공인 심판 (Referee) 스킨",
+                imageSrc: "카약 심판 남유하.png",
+                icon: "fa-shield-halved",
+                badgeColor: "cyan",
+                kayakType: "가디언 파트롤 카약 (규칙 통제형)",
+                stats: { speed: 88, tactics: 90, building: 82, combat: 94, paddle: 90 },
+                skillName: "야생의 휘슬 (Wild Whistle)",
+                skillDesc: "동물 사냥 및 식량 수집 시 아이템 드랍률이 1.5배 증가하고, 경기 이탈자를 즉시 감지하는 경고 시스템을 발동시킵니다.",
+                equipments: [
+                    "📣 호루라기 & REFEREE 전용 캡 모자",
+                    "🛡️ 세이프티 월드 배리어 제어 모듈",
+                    "🛶 팀 전용 컬러 식별 카약",
+                    "📋 공정 경기 판정 클립보드"
+                ],
+                devRole: "동물 스폰 세팅, 월드 배리어 경계선 및 규제선 세팅, 팀별 고유 색상 카약 배치",
+                bio: "화이트와 네이비 기반의 공인 심판 스킨을 착용한 가디언! 등판의 REFEREE 로고와 호루라기로 엄격한 판정을 내리며, 공정한 경기 운영과 수중 생존 밸런스를 맞췄습니다."
+            },
+            dohyun: {
+                name: "길도현",
+                role: "팀원 / 에이스 #07 (Team Member & Player #07)",
+                title: "보물 탐색 & 시각 택티션",
+                skin: "대한민국 카약 대표팀 에이스 #07 스킨",
+                imageSrc: "카약 팀원 길도현.png",
+                icon: "fa-crosshairs",
+                badgeColor: "blue",
+                kayakType: "샤프 스나이핑 카약 (경량 기습형)",
+                stats: { speed: 92, tactics: 89, building: 80, combat: 93, paddle: 92 },
+                skillName: "트레저 스나이퍼 (Treasure Sight)",
+                skillDesc: "숨겨진 보물 상자의 위치를 시각적으로 감지하는 능력이 부여되며, 팀 컬러 구분을 강화하여 원거리 식별율이 급상승합니다.",
+                equipments: [
+                    "🎯 대표팀 #07 넘버링 전용 카약 & 카본 패들",
+                    "🔭 수중/밀림 보물 탐색 스코프",
+                    "💎 팀별 컬러 가시성 크리스탈",
+                    "⚔️ 근접 제압용 나이프 & 장궁"
+                ],
+                devRole: "경기장 내부 배리어 최적 배치, 은닉 무기 상자 및 밸런스 배치, 팀별 고유 색상 시스템 구현",
+                bio: "등판의 KOREA 07 로고와 태극 디자인이 선명한 에이스 선수 스킨! 뛰어난 스나이핑 감각으로 은닉 무기 상자의 밸런스를 잡고, 경기 가시성을 완벽하게 설계했습니다."
+            },
+            seunghyun: {
+                name: "김승연",
+                role: "팀원 / 선수 (Team Member & Player)",
+                title: "스피드 트랙 & 레일 엔지니어",
+                skin: "대한민국 카약 대표팀 테크니컬 스킨",
+                imageSrc: "카약 팀원 김승연.png",
+                icon: "fa-train",
+                badgeColor: "teal",
+                kayakType: "하이퍼 트랙 카약 (레일 연동형)",
+                stats: { speed: 97, tactics: 88, building: 91, combat: 85, paddle: 94 },
+                skillName: "레일 라이더 (Rail Accelerator)",
+                skillDesc: "마인카트 및 육지 레일 트랙 이용 시 최고 속도가 +25% 가속되며, 외각 배리어 충돌 손상을 무효화합니다.",
+                equipments: [
+                    "🚃 초고속 마인카트 & 레일 키트",
+                    "🔧 카약-마인카트 스위칭 렌치",
+                    "🌐 외각 경계 배리어 고성능 모듈",
+                    "👟 스피드 가속 라이더 스니커즈"
+                ],
+                devRole: "전국 육지 레일 트랙망 기공 및 마인카트 설치, 외각 경계 안전 배리어 완공",
+                bio: "역동적인 태극 스트라이프 유니폼과 묶은 머리가 돋보이는 스피드 테크니션! 수로와 육지를 넘나드는 레일망을 완공하여 끊임없는 추격전의 재미를 극대화했습니다."
+            }
+        };
+
+        // Open Character Modal with fully populated detailed sheets and actual photo image
+        function openCharModal(charKey) {
+            const data = charactersData[charKey];
+            if (!data) return;
+
+            const modalTarget = document.getElementById('charModalContent');
+            
+            modalTarget.innerHTML = `
+                <!-- Header Badge -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center gap-2 bg-slate-900 border border-orange-500/60 text-orange-300 text-[11px] px-3.5 py-1.5 rounded-full pixel-font mb-2 shadow-lg">
+                        <i class="fa-solid fa-camera text-orange-400"></i>
+                        <span>KAYAK PLAYER CHARACTER SHEET & OFFICIAL PHOTO</span>
+                    </div>
+                    <h3 class="pixel-font text-3xl sm:text-4xl text-white flex items-center justify-center gap-2 mt-1">
+                        <span>${data.name}</span>
+                        <span class="text-xs text-orange-300 font-normal bg-orange-950/80 border border-orange-800 px-2.5 py-0.5 rounded-lg">${data.title}</span>
+                    </h3>
+                    <p class="text-xs text-cyan-300 font-bold mt-1.5"><i class="fa-solid fa-award mr-1"></i>${data.role}</p>
+                </div>
+
+                <!-- Main Photo Sheet Image Frame -->
+                <div class="bg-slate-950 p-3 sm:p-4 rounded-2xl border-2 border-orange-500/50 mb-6 shadow-2xl relative">
+                    <div class="flex justify-between items-center mb-2 px-1">
+                        <span class="text-xs text-slate-300 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-image text-orange-400"></i> 공식 마인크래프트 캐릭터 스킨 시트 & 참고 사진
+                        </span>
+                        <a href="${data.imageSrc}" target="_blank" class="text-[11px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 bg-slate-900 px-2.5 py-1 rounded-lg border border-slate-700">
+                            <i class="fa-solid fa-up-right-from-square"></i> 원본 크게보기
+                        </a>
+                    </div>
+                    <div class="w-full max-h-[420px] rounded-xl overflow-hidden bg-slate-900 flex items-center justify-center border border-slate-800">
+                        <img src="${data.imageSrc}" alt="${data.name} 캐릭터 시트 사진" class="w-full h-auto object-contain max-h-[400px]">
+                    </div>
+                </div>
+
+                <!-- Profile & Kayak Info -->
+                <div class="bg-slate-900/90 p-4 sm:p-5 rounded-2xl border border-cyan-800/80 mb-6 flex flex-col sm:flex-row items-center gap-4 shadow-xl">
+                    <div class="w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500/30 via-amber-500/20 to-cyan-500/30 border-2 border-orange-400 flex items-center justify-center text-4xl text-orange-300 shrink-0 shadow-lg">
+                        <i class="fa-solid ${data.icon}"></i>
+                    </div>
+                    <div class="text-center sm:text-left text-xs space-y-1.5 flex-1">
+                        <div class="text-slate-200"><strong class="text-orange-400">👕 장착 유니폼:</strong> ${data.skin}</div>
+                        <div class="text-slate-200"><strong class="text-cyan-300">🛶 전용 카약:</strong> ${data.kayakType}</div>
+                        <div class="text-slate-200"><strong class="text-amber-300">⚙️ 담당 개발:</strong> ${data.devRole}</div>
+                    </div>
+                </div>
+
+                <!-- Full Character Stats Analysis -->
+                <div class="space-y-3 mb-6 bg-slate-900/80 p-4 rounded-2xl border border-slate-800">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-2 mb-3">
+                        <h4 class="pixel-font text-sm text-slate-200 flex items-center gap-1.5">
+                            <i class="fa-solid fa-chart-simple text-orange-400"></i> 카약 대원 상세 능력치 (Full Stats)
+                        </h4>
+                        <span class="text-[10px] text-slate-400 font-mono">MAX: 100 PTS</span>
+                    </div>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 flex items-center gap-1"><i class="fa-solid fa-gauge-high text-cyan-400 w-4"></i> 스피드 & 가속력</span>
+                            <span class="pixel-font text-cyan-300 font-bold">${data.stats.speed} pts</span>
+                        </div>
+                        <div class="bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-cyan-500 to-cyan-300 h-full rounded-full" style="width: ${data.stats.speed}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 flex items-center gap-1"><i class="fa-solid fa-water text-orange-400 w-4"></i> 패들링 조종술</span>
+                            <span class="pixel-font text-orange-300 font-bold">${data.stats.paddle} pts</span>
+                        </div>
+                        <div class="bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-orange-500 to-amber-300 h-full rounded-full" style="width: ${data.stats.paddle}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 flex items-center gap-1"><i class="fa-solid fa-brain text-amber-400 w-4"></i> 급류 작전 & 노하우</span>
+                            <span class="pixel-font text-amber-300 font-bold">${data.stats.tactics} pts</span>
+                        </div>
+                        <div class="bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full rounded-full" style="width: ${data.stats.tactics}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 flex items-center gap-1"><i class="fa-solid fa-hammer text-emerald-400 w-4"></i> 거점 건축 & 테크</span>
+                            <span class="pixel-font text-emerald-300 font-bold">${data.stats.building} pts</span>
+                        </div>
+                        <div class="bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full" style="width: ${data.stats.building}%"></div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 flex items-center gap-1"><i class="fa-solid fa-crosshairs text-rose-400 w-4"></i> 백병전 & 수중 사냥</span>
+                            <span class="pixel-font text-rose-300 font-bold">${data.stats.combat} pts</span>
+                        </div>
+                        <div class="bg-slate-800 h-2.5 rounded-full overflow-hidden">
+                            <div class="bg-gradient-to-r from-rose-500 to-pink-300 h-full rounded-full" style="width: ${data.stats.combat}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skill & Equipment Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-xs">
+                        <span class="pixel-font text-orange-400 block mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-bolt text-amber-400"></i> 고유 패들 스킬
+                        </span>
+                        <div class="font-bold text-white mb-1.5 text-sm">${data.skillName}</div>
+                        <div class="text-slate-300 leading-relaxed text-[11px]">${data.skillDesc}</div>
+                    </div>
+
+                    <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 text-xs">
+                        <span class="pixel-font text-cyan-300 block mb-1.5 flex items-center gap-1">
+                            <i class="fa-solid fa-suitcase text-cyan-400"></i> 전용 장비 슬롯
+                        </span>
+                        <ul class="text-slate-300 text-[11px] space-y-1.5">
+                            ${data.equipments.map(item => `<li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-orange-400 text-[10px]"></i> ${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Backstory & Developer Notes -->
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-cyan-800/60 text-xs leading-relaxed text-slate-300 mb-6">
+                    <span class="pixel-font text-emerald-400 block mb-1.5 flex items-center gap-1">
+                        <i class="fa-solid fa-book-open text-emerald-400"></i> 대원 스토리 & 맵 개발 노트
+                    </span>
+                    ${data.bio}
+                </div>
+
+                <button onclick="closeModal('charModal')" class="btn-kayak bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold py-3.5 px-6 rounded-xl text-sm pixel-font w-full">
+                    시트 창 닫기
+                </button>
+            `;
+
+            openModal('charModal');
+        }
+
+        // Notification Toast Handler
+        function showNotification(msg) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            toastMsg.innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
