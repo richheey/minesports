@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마인크래프트 스포츠 월드 - Minecraft Sports Portal</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Noto+Sans+KR:wght@400;500;700;900&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            950: '#052e16',
+                        },
+                        dark: {
+                            bg: '#080c14',
+                            card: '#0f172a',
+                            border: 'rgba(255, 255, 255, 0.08)'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Noto Sans KR', 'Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+
+        // Server IP Copy Function
+        function copyServerIP() {
+            const ipText = "mc.sports-world.kr:25565";
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = ipText;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            const toast = document.getElementById("copy-toast");
+            if (toast) {
+                toast.classList.remove("opacity-0", "translate-y-2");
+                toast.classList.add("opacity-100", "translate-y-0");
+                setTimeout(() => {
+                    toast.classList.remove("opacity-100", "translate-y-0");
+                    toast.classList.add("opacity-0", "translate-y-2");
+                }, 2500);
+            }
+        }
+
+        // Lightbox Modal for Team Photos
+        function openImageModal(imgSrc, titleText) {
+            const modal = document.getElementById("img-modal");
+            const modalImg = document.getElementById("modal-img");
+            const modalTitle = document.getElementById("modal-title");
+            if (modal && modalImg && modalTitle) {
+                modalImg.src = imgSrc;
+                modalTitle.textContent = titleText || '팀 단체 사진 확대 보기';
+                modal.classList.remove("hidden");
+                modal.classList.add("flex");
+                document.body.style.overflow = "hidden";
+            }
+        }
+
+        function closeImageModal() {
+            const modal = document.getElementById("img-modal");
+            if (modal) {
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+                document.body.style.overflow = "auto";
+            }
+        }
+
+        // Image Load Fallback
+        function handleImgError(imgEl, altText) {
+            imgEl.onerror = null;
+            imgEl.parentElement.innerHTML = `
+                <div class="w-full h-52 bg-slate-900/90 border border-white/10 rounded-xl flex flex-col items-center justify-center p-4 text-center">
+                    <i class="fa-solid fa-users-viewfinder text-slate-600 text-3xl mb-2"></i>
+                    <span class="text-xs text-slate-300 font-bold">${altText}</span>
+                    <span class="text-[11px] text-slate-500 font-mono mt-1">photo/ 폴더 안 이미지 로드 중</span>
+                </div>
+            `;
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', 'Plus Jakarta Sans', sans-serif;
+            background-color: #080c14;
+            color: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #080c14;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #22c55e;
+            border-radius: 4px;
+        }
+
+        .bg-grid-pattern {
+            background-image: radial-gradient(rgba(34, 197, 94, 0.08) 1px, transparent 1px);
+            background-size: 28px 28px;
+        }
+    </style>
+</head>
+<body class="bg-dark-bg text-slate-100 antialiased min-h-screen flex flex-col justify-between relative bg-grid-pattern">
+
+    <header class="sticky top-0 z-40 bg-dark-bg/90 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 h-20 flex items-center justify-between">
+            
+            <!-- Brand Title -->
+            <div class="flex items-center gap-3 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
+                <div class="w-10 h-10 bg-brand-500/10 border border-brand-500/30 rounded-xl flex items-center justify-center text-brand-400 text-lg shadow-sm">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-mono font-bold uppercase tracking-widest text-brand-400">Minecraft Sports Portal</span>
+                        <span class="text-[10px] bg-slate-800 text-slate-300 border border-white/10 px-1.5 py-0.5 rounded font-mono">v1.20+</span>
+                    </div>
+                    <h1 class="text-base font-bold text-white tracking-tight">마인크래프트 스포츠 월드</h1>
+                </div>
+            </div>
+
+            <!-- Server IP Copy Button -->
+            <button onclick="copyServerIP()" class="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-xs sm:text-sm rounded-xl transition-all shadow-md flex items-center gap-2 transform active:scale-95">
+                <i class="fa-solid fa-plug"></i>
+                <span>서버 IP 복사</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="relative z-10 flex-grow">
+        
+        <!-- Hero Section -->
+        <section class="py-12 sm:py-20 border-b border-white/10 bg-gradient-to-b from-brand-950/20 via-dark-bg to-dark-bg">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center">
+                
+                <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/20 text-brand-400 text-xs font-mono font-semibold mb-6">
+                    <span class="w-2 h-2 rounded-full bg-brand-400 animate-ping"></span>
+                    <span>4 SPORTS TEAMS ARENA SHOWCASE</span>
+                </div>
+
+                <h1 class="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight mb-6">
+                    마인크래프트 스포츠 월드<br>
+                    <span class="text-brand-400">4대 익스트림 스포츠 아레나</span>에 오신 것을 환영합니다!
+                </h1>
+
+                <p class="max-w-3xl mx-auto text-sm sm:text-base text-slate-300 leading-relaxed mb-8">
+                    직접 기획하고 건축한 <strong class="text-emerald-400">축구, 야구, 펜싱, 카약</strong> 4개 팀의 스포츠 월드가 준비되어 있습니다.<br class="hidden sm:block">
+                    각 팀의 사진 카드를 클릭하여 전용 랜딩페이지와 탈출 규칙을 확인해 보세요.
+                </p>
+
+                <!-- Server Address Bar -->
+                <div class="max-w-md mx-auto bg-slate-900 border border-brand-500/30 p-2.5 rounded-2xl flex items-center justify-between gap-3 shadow-xl mb-10">
+                    <div class="px-3 font-mono text-xs sm:text-sm text-brand-400 font-bold flex items-center gap-2">
+                        <i class="fa-solid fa-server text-amber-400"></i>
+                        <span>mc.sports-world.kr:25565</span>
+                    </div>
+                    <button onclick="copyServerIP()" class="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-slate-950 font-bold text-xs rounded-xl transition-colors shrink-0">
+                        <i class="fa-regular fa-copy mr-1"></i>주소 복사
+                    </button>
+                </div>
+
+            </div>
+        </section>
+
+        <section class="py-16 max-w-6xl mx-auto px-4 sm:px-6">
+            
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 pb-4 border-b border-white/10 gap-3">
+                <div>
+                    <span class="text-xs font-mono font-bold text-brand-400 uppercase tracking-widest block mb-1">TEAM SHOWCASE</span>
+                    <h2 class="text-2xl sm:text-3xl font-bold text-white">종목별 스포츠 팀 대표 아레나 (4종)</h2>
+                </div>
+                <p class="text-xs text-slate-400">
+                    사진을 클릭하면 원본 고해상도로 확대할 수 있으며, 이동 버튼을 통해 해당 스포츠 페이지로 들어갈 수 있습니다.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- 1. 축구 팀 (Soccer) -->
+                <div class="bg-dark-card border border-white/10 rounded-2xl p-5 hover:border-emerald-500/50 transition-all shadow-xl flex flex-col justify-between group">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-sm font-bold">
+                                    <i class="fa-solid fa-futbol"></i>
+                                </span>
+                                <span class="text-xs font-mono font-bold text-emerald-400">SOCCER ARENA</span>
+                            </div>
+                            <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-[11px] font-mono font-bold">
+                                5인 개발/운영진
+                            </span>
+                        </div>
+
+                        <!-- Team Photo -->
+                        <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-white/10 mb-4 cursor-pointer group/img" onclick="openImageModal('./photo/soccer team.jpg', '축구 팀 단체 사진 (soccer team.jpg)')">
+                            <img src="./photo/soccer team.jpg" alt="축구 팀 단체 사진" class="w-full h-56 object-cover object-center group-hover/img:scale-105 transition-transform duration-300" onerror="handleImgError(this, '축구 팀 단체 사진 (soccer team.jpg)')">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-base"></i>
+                                <span>사진 크게보기</span>
+                            </div>
+                        </div>
+
+                        <!-- Content Info -->
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">
+                            골을 넣어 축구장을 탈출게임
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-6">
+                            3개 팀이 대형 축구장 곳곳에 숨겨진 보물 5개를 찾아 팀 상자에 넣고 최종 골을 넣어 탈출하는 서바이벌 탈출게임 아레나입니다.
+                        </p>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-[11px] font-mono text-slate-400">담당: 주연우, 노도윤, 홍지한, 김서우, 김상우</span>
+                        <a href="./soccer/soccer.html" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                            <span>축구 페이지 이동</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 2. 야구 팀 (Baseball) -->
+                <div class="bg-dark-card border border-white/10 rounded-2xl p-5 hover:border-amber-500/50 transition-all shadow-xl flex flex-col justify-between group">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center text-sm font-bold">
+                                    <i class="fa-solid fa-baseball-bat-ball"></i>
+                                </span>
+                                <span class="text-xs font-mono font-bold text-amber-400">BASEBALL STADIUM</span>
+                            </div>
+                            <span class="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-lg text-[11px] font-mono font-bold">
+                                야구 팀 아레나
+                            </span>
+                        </div>
+
+                        <!-- Team Photo -->
+                        <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-white/10 mb-4 cursor-pointer group/img" onclick="openImageModal('./photo/baseball team.jpg', '야구 팀 단체 사진 (baseball team.jpg)')">
+                            <img src="./photo/baseball team.jpg" alt="야구 팀 단체 사진" class="w-full h-56 object-cover object-center group-hover/img:scale-105 transition-transform duration-300" onerror="handleImgError(this, '야구 팀 단체 사진 (baseball team.jpg)')">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-base"></i>
+                                <span>사진 크게보기</span>
+                            </div>
+                        </div>
+
+                        <!-- Content Info -->
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-amber-400 transition-colors">
+                            마인크래프트 야구 아레나
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-6">
+                            대형 야구 주루 코칭과 정밀 사격 홈런 미션! 베이스점프 및 경기장 미로 탈출을 즐길 수 있는 야구 테마 아레나입니다.
+                        </p>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-[11px] font-mono text-slate-400">야구 대표팀 개발 스쿼드</span>
+                        <a href="./baseball/baseball.html" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                            <span>야구 페이지 이동</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 3. 펜싱 팀 (Fencing) -->
+                <div class="bg-dark-card border border-white/10 rounded-2xl p-5 hover:border-blue-500/50 transition-all shadow-xl flex flex-col justify-between group">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-400 flex items-center justify-center text-sm font-bold">
+                                    <i class="fa-solid fa-person-military-to-person"></i>
+                                </span>
+                                <span class="text-xs font-mono font-bold text-blue-400">FENCING DUEL</span>
+                            </div>
+                            <span class="px-2.5 py-1 bg-blue-500/10 text-blue-400 border border-blue-500/20 rounded-lg text-[11px] font-mono font-bold">
+                                펜싱 팀 아레나
+                            </span>
+                        </div>
+
+                        <!-- Team Photo -->
+                        <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-white/10 mb-4 cursor-pointer group/img" onclick="openImageModal('./photo/fencing team.jpg', '펜싱 팀 단체 사진 (fencing team.jpg)')">
+                            <img src="./photo/fencing team.jpg" alt="펜싱 팀 단체 사진" class="w-full h-56 object-cover object-center group-hover/img:scale-105 transition-transform duration-300" onerror="handleImgError(this, '펜싱 팀 단체 사진 (fencing team.jpg)')">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-base"></i>
+                                <span>사진 크게보기</span>
+                            </div>
+                        </div>
+
+                        <!-- Content Info -->
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">
+                            마인크래프트 펜싱 아레나
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-6">
+                            1v1 정교한 칼싸움과 타이밍 피아 회피 스테이지! 빠른 반발력과 컨트롤을 검증하는 펜싱 토너먼트 배틀 경기장입니다.
+                        </p>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-[11px] font-mono text-slate-400">펜싱 대표팀 개발 스쿼드</span>
+                        <a href="./fencing/fencing.html" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-slate-950 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                            <span>펜싱 페이지 이동</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- 4. 카약 팀 (Kayak) -->
+                <div class="bg-dark-card border border-white/10 rounded-2xl p-5 hover:border-cyan-500/50 transition-all shadow-xl flex flex-col justify-between group">
+                    <div>
+                        <!-- Header Badge -->
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-sm font-bold">
+                                    <i class="fa-solid fa-water"></i>
+                                </span>
+                                <span class="text-xs font-mono font-bold text-cyan-400">KAYAK RALLY</span>
+                            </div>
+                            <span class="px-2.5 py-1 bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 rounded-lg text-[11px] font-mono font-bold">
+                                카약 팀 아레나
+                            </span>
+                        </div>
+
+                        <!-- Team Photo -->
+                        <div class="relative rounded-xl overflow-hidden bg-slate-950 border border-white/10 mb-4 cursor-pointer group/img" onclick="openImageModal('./photo/kayak team.jpg', '카약 팀 단체 사진 (kayak team.jpg)')">
+                            <img src="./photo/kayak team.jpg" alt="카약 팀 단체 사진" class="w-full h-56 object-cover object-center group-hover/img:scale-105 transition-transform duration-300" onerror="handleImgError(this, '카약 팀 단체 사진 (kayak team.jpg)')">
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-base"></i>
+                                <span>사진 크게보기</span>
+                            </div>
+                        </div>
+
+                        <!-- Content Info -->
+                        <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">
+                            마인크래프트 카약 리버 레이싱
+                        </h3>
+                        <p class="text-xs text-slate-300 leading-relaxed mb-6">
+                            급류 보트 조정과 아이스 슬라이딩 타임어택! 험난한 물길 장애물을 넘어 골인 지점까지 다다르는 해양 보트 레이스입니다.
+                        </p>
+                    </div>
+
+                    <!-- Action Button -->
+                    <div class="pt-4 border-t border-white/10 flex items-center justify-between">
+                        <span class="text-[11px] font-mono text-slate-400">카약 대표팀 개발 스쿼드</span>
+                        <a href="./kayak/kayak.html" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold text-xs rounded-xl transition-all flex items-center gap-1.5 shadow-md">
+                            <span>카약 페이지 이동</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="py-12 bg-slate-900/40 border-t border-white/10">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+                <h4 class="text-sm font-bold text-slate-300 mb-2 flex items-center justify-center gap-2">
+                    <i class="fa-brands fa-github text-brand-400"></i>
+                    <span>GitHub Pages 프로젝트 저장소 배치 가이드</span>
+                </h4>
+                <p class="text-xs text-slate-400 leading-relaxed max-w-2xl mx-auto mb-4">
+                    루트에 <code>index.html</code>을 두고 각 스포츠 폴더(<code>soccer</code>, <code>baseball</code>, <code>fencing</code>, <code>kayak</code>) 및 <code>photo</code> 폴더를 생성해 업로드하면 GitHub Pages 웹사이트가 바로 완성됩니다.
+                </p>
+                <div class="inline-flex items-center gap-2 px-4 py-2 bg-black/60 rounded-xl border border-white/10 font-mono text-[11px] text-slate-300">
+                    <span class="text-emerald-400">Root</span> / index.html ➔ ./soccer/soccer.html | ./photo/soccer team.jpg
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark-bg border-t border-white/10 py-10">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 text-center text-xs text-slate-400 space-y-3">
+            <div class="flex items-center justify-center gap-2 font-bold text-white text-sm">
+                <i class="fa-solid fa-gamepad text-brand-400"></i>
+                <span>마인크래프트 스포츠 월드 쇼케이스</span>
+            </div>
+            <p class="text-slate-400">
+                축구 · 야구 · 펜싱 · 카약 4대 스포츠 아레나 프로젝트
+            </p>
+            <p class="text-[11px] font-mono text-slate-600">
+                &copy; Minecraft Sports World. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Image Lightbox Modal -->
+    <div id="img-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4" onclick="closeImageModal()">
+        <div class="relative max-w-4xl w-full bg-slate-900 border border-white/20 rounded-2xl p-4 overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
+            <div class="flex items-center justify-between pb-3 mb-3 border-b border-white/10">
+                <h4 id="modal-title" class="text-sm font-bold text-white font-mono">팀 단체 사진 확대 보기</h4>
+                <button onclick="closeImageModal()" class="w-8 h-8 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-lg flex items-center justify-center transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="max-h-[75vh] flex items-center justify-center overflow-auto rounded-xl bg-black">
+                <img id="modal-img" src="" alt="확대 이미지" class="max-w-full max-h-[70vh] object-contain rounded-lg">
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Toast Notification -->
+    <div id="copy-toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-brand-500 text-slate-950 text-xs font-bold font-mono px-4 py-2.5 rounded-xl shadow-2xl opacity-0 translate-y-2 transition-all pointer-events-none flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-sm"></i>
+        <span>mc.sports-world.kr:25565 주소가 복사되었습니다!</span>
+    </div>
+
+</body>
+</html>
