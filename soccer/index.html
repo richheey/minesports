@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>골을 넣어 축구장을 탈출게임 - Minecraft Escape Map</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DungGeunMo&family=Noto+Sans+KR:wght@300;400;600;800;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pitch: {
+                            dark: '#081c10',
+                            grass1: '#114223',
+                            grass2: '#16522c',
+                            line: '#4ade80',
+                            gold: '#fbbf24',
+                            chalk: '#f8fafc',
+                            cardYellow: '#f59e0b',
+                            cardRed: '#ef4444'
+                        }
+                    },
+                    fontFamily: {
+                        pixel: ['DungGeunMo', 'sans-serif'],
+                        sans: ['Noto Sans KR', 'sans-serif'],
+                        scoreboard: ['Orbitron', 'DungGeunMo', 'sans-serif']
+                    }
+                }
+            }
+        }
+
+        /* Image load fallback retry & visual card generator */
+        function tryImageFallback(imgElement, altFileName, name, tag, colorHex, roleDesc) {
+            if (!imgElement.dataset.retried) {
+                imgElement.dataset.retried = "true";
+                imgElement.src = altFileName;
+            } else {
+                handleImgError(imgElement, name, tag, colorHex, roleDesc, altFileName);
+            }
+        }
+
+        function handleImgError(imgElement, name, tag, colorHex, roleDesc, fileName) {
+            imgElement.style.display = 'none';
+            const parent = imgElement.parentElement;
+            
+            if (parent.querySelector('.fallback-card')) return;
+
+            const fallbackDiv = document.createElement('div');
+            fallbackDiv.className = 'fallback-card w-full h-full flex flex-col items-center justify-between p-4 text-center bg-slate-900/95 rounded-xl border border-emerald-500/40 shadow-2xl select-none';
+            fallbackDiv.innerHTML = `
+                <div class="w-full flex items-center justify-between border-b border-slate-800 pb-2 mb-2">
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider" style="background-color: ${colorHex}25; color: ${colorHex}; border: 1px solid ${colorHex}50">
+                        ${tag}
+                    </span>
+                    <span class="text-[10px] font-mono text-slate-400"><i class="fa-solid fa-file-image text-emerald-400 mr-1"></i>${fileName}</span>
+                </div>
+                
+                <div class="my-auto flex flex-col items-center">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl font-black pixel-font mb-2 shadow-lg transition-transform hover:scale-110" style="background-color: ${colorHex}20; color: ${colorHex}; border: 2px solid ${colorHex}">
+                        <i class="fa-solid fa-shirt"></i>
+                    </div>
+                    <div class="pixel-font text-base font-bold text-white">${name} 캐릭터 시트</div>
+                    <div class="text-xs text-slate-300 font-sans mt-1 px-2">${roleDesc}</div>
+                </div>
+
+                <div class="w-full pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                    <span class="text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check mr-1"></i>이미지 연결 준비 완료</span>
+                    <span class="text-amber-400 underline cursor-pointer hover:text-amber-300">클릭하여 스펙 보기</span>
+                </div>
+            `;
+            parent.appendChild(fallbackDiv);
+        }
+
+        function openModal(imgSrc, title, fallbackName, roleDetails) {
+            const modal = document.getElementById('image-modal');
+            const modalImg = document.getElementById('modal-img');
+            const modalTitle = document.getElementById('modal-title');
+            const modalFallback = document.getElementById('modal-fallback');
+            
+            if (modal && modalImg && modalTitle) {
+                modalTitle.innerText = title;
+                modalImg.src = imgSrc;
+                modalImg.style.display = 'block';
+                if (modalFallback) modalFallback.classList.add('hidden');
+
+                modalImg.onerror = function() {
+                    modalImg.style.display = 'none';
+                    if (modalFallback) {
+                        modalFallback.classList.remove('hidden');
+                        modalFallback.innerHTML = `
+                            <div class="p-6 text-left space-y-4 text-slate-200">
+                                <div class="flex items-center gap-3 pb-3 border-b border-slate-800">
+                                    <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center text-2xl font-bold pixel-font">
+                                        <i class="fa-solid fa-futbol"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="text-xl font-bold text-white pixel-font">${fallbackName} 스킨 캐릭터 시트</h4>
+                                        <p class="text-xs text-emerald-400 font-mono">파일명: ${imgSrc}</p>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-900 p-4 rounded-xl border border-slate-800 text-sm space-y-2">
+                                    <div class="text-amber-400 font-bold mb-1"><i class="fa-solid fa-clipboard-check mr-1"></i>운영자 담당 역할</div>
+                                    <p class="text-slate-300 leading-relaxed">${roleDetails}</p>
+                                </div>
+                                <div class="text-xs text-slate-400 bg-slate-950 p-3 rounded-lg border border-slate-800">
+                                    💡 <strong>팁:</strong> HTML 파일과 동일한 폴더에 <code>${imgSrc}</code> 이미지 파일이 위치해 있으면 원본 HD 도면 스크린샷이 즉시 표시됩니다.
+                                </div>
+                            </div>
+                        `;
+                    }
+                };
+
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('image-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function copyServerIP() {
+            const ipText = "mc.soccer-escape.kr:25565";
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = ipText;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            const toast = document.getElementById("copy-toast");
+            if (toast) {
+                toast.classList.remove("opacity-0");
+                toast.classList.add("opacity-100");
+                setTimeout(() => {
+                    toast.classList.remove("opacity-100");
+                    toast.classList.add("opacity-0");
+                }, 3000);
+            }
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #06150c;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .pixel-font {
+            font-family: 'DungGeunMo', sans-serif;
+        }
+
+        .scoreboard-font {
+            font-family: 'Orbitron', 'DungGeunMo', sans-serif;
+        }
+
+        /* Soccer Pitch Grass Stripes Background Effect */
+        .pitch-pattern {
+            background-color: #0c2b17;
+            background-image: linear-gradient(
+                0deg,
+                #081e11 25%,
+                #0f381d 25%,
+                #0f381d 50%,
+                #081e11 50%,
+                #081e11 75%,
+                #0f381d 75%,
+                #0f381d 100%
+            );
+            background-size: 100% 120px;
+        }
+
+        /* Stadium Lights Radial Glow */
+        .stadium-lights {
+            background: 
+                radial-gradient(circle at 15% 10%, rgba(74, 222, 128, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 85% 10%, rgba(74, 222, 128, 0.25) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
+        }
+
+        .card-hover-effect {
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .card-hover-effect:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.3), 0 8px 10px -6px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Pulsing Center Circle Animation */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.05); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .center-circle-anim {
+            animation: pulse-ring 4s infinite ease-in-out;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #06150c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #22c55e;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-pitch-dark text-slate-100 pitch-pattern antialiased">
+
+    <nav class="sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b-2 border-emerald-500/40 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo / Title -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="scrollToTop()">
+                    <div class="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center border-2 border-emerald-300 shadow-lg shadow-emerald-500/30 transform -rotate-3 hover:rotate-0 transition-transform">
+                        <i class="fa-solid fa-futbol text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 bg-red-600 text-white text-[10px] font-bold rounded pixel-font uppercase animate-pulse">LIVE MATCH</span>
+                            <span class="text-xs text-emerald-400 font-mono tracking-widest hidden sm:inline">MINECRAFT ESCAPE</span>
+                        </div>
+                        <span class="pixel-font text-xl md:text-2xl text-amber-400 font-extrabold tracking-wide block">골을 넣어 축구장을 탈출게임</span>
+                    </div>
+                </div>
+                
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center space-x-8 text-sm font-bold pixel-font">
+                    <a href="#rules" class="text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> 경기 규칙
+                    </a>
+                    <a href="#squad" class="text-slate-300 hover:text-emerald-400 transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-users text-emerald-400"></i> 운영진 스쿼드
+                    </a>
+                    <a href="#pitch-highlights" class="text-slate-300 hover:text-amber-400 transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-map text-emerald-400"></i> 구장 구역 안내
+                    </a>
+                </div>
+
+                <!-- Server IP Button -->
+                <div>
+                    <button onclick="copyServerIP()" class="pixel-font px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-400 hover:to-green-400 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-emerald-500/30 transform hover:-translate-y-0.5 active:translate-y-0 transition-all flex items-center gap-2 border border-emerald-300">
+                        <i class="fa-solid fa-play text-slate-950"></i>
+                        <span>서버 접속하기</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="relative overflow-hidden py-16 md:py-24 stadium-lights border-b-4 border-emerald-600/50">
+        
+        <!-- Pitch Center Circle Graphics -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+            <div class="w-[500px] h-[500px] border-4 border-emerald-400 rounded-full center-circle-anim flex items-center justify-center">
+                <div class="w-4 h-4 bg-emerald-400 rounded-full"></div>
+            </div>
+            <div class="absolute w-full border-t-2 border-emerald-400/60"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            
+            <!-- Main Scoreboard Banner Header -->
+            <div class="inline-flex items-center gap-3 px-6 py-2 rounded-full bg-slate-950/80 border-2 border-emerald-400/60 text-emerald-300 text-sm font-bold mb-8 shadow-2xl backdrop-blur-md">
+                <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+                <span class="pixel-font tracking-wide">🏆 마인크래프트 탈출맵 | 3개 팀 대격돌 챔피언십</span>
+            </div>
+            
+            <!-- Main Title -->
+            <h1 class="pixel-font text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-wider mb-6 leading-tight drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+                ⚽ 골을 넣어 <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-400 to-emerald-400">축구장을 탈출하라!</span> ⚽
+            </h1>
+            
+            <p class="max-w-3xl mx-auto text-base sm:text-xl text-slate-200 mb-10 leading-relaxed font-sans font-medium bg-slate-950/60 p-6 rounded-2xl border border-emerald-500/30 backdrop-blur-sm shadow-xl">
+                광활한 마인크래프트 축구장에 갇힌 <span class="text-amber-400 font-extrabold">총 3개의 팀!</span><br class="hidden sm:block">
+                경기장 곳곳에 비밀스럽게 숨겨진 <span class="text-emerald-400 font-extrabold">보물 5개</span>를 찾아 각자의 팀 상자에 넣고,<br class="hidden sm:block">
+                골을 넣어 텔레포트 게이트를 작동시켜 가장 먼저 탈출하세요!
+            </p>
+
+            <!-- Stadium Scoreboard Widget -->
+            <div class="max-w-3xl mx-auto bg-slate-950/90 border-4 border-amber-500/80 rounded-2xl p-6 shadow-2xl mb-10 relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-amber-500 text-slate-950 px-4 py-1 font-bold text-xs pixel-font rounded-bl-lg">
+                    MATCH INFO
+                </div>
+                
+                <div class="grid grid-cols-3 gap-4 text-center items-center">
+                    <div class="p-3 bg-emerald-950/80 border border-emerald-500/40 rounded-xl">
+                        <div class="text-xs text-emerald-400 font-bold mb-1">참가 인원</div>
+                        <div class="scoreboard-font text-xl sm:text-2xl font-bold text-white">3 TEAMS</div>
+                    </div>
+                    <div class="p-3 bg-amber-950/80 border border-amber-500/40 rounded-xl">
+                        <div class="text-xs text-amber-400 font-bold mb-1">핵심 미션</div>
+                        <div class="scoreboard-font text-xl sm:text-2xl font-bold text-amber-300">5 TREASURES</div>
+                    </div>
+                    <div class="p-3 bg-red-950/80 border border-red-500/40 rounded-xl">
+                        <div class="text-xs text-red-400 font-bold mb-1">최종 관문</div>
+                        <div class="scoreboard-font text-xl sm:text-2xl font-bold text-white">GOAL & ESCAPE</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CTA Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#rules" class="pixel-font px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-lg rounded-xl shadow-lg shadow-amber-500/30 transition-all flex items-center justify-center gap-3 border-2 border-amber-300">
+                    <i class="fa-solid fa-clipboard-list text-xl"></i>
+                    <span>경기 규칙 (퇴출 규정) 확인</span>
+                </a>
+                <a href="#squad" class="pixel-font px-8 py-4 bg-slate-900 hover:bg-slate-800 text-emerald-400 font-extrabold text-lg rounded-xl border-2 border-emerald-500/60 transition-all flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-users text-xl"></i>
+                    <span>운영진 스쿼드 & 캐릭터 시트</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="rules" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+        
+        <div class="text-center mb-16">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-red-500/20 text-red-400 border border-red-500/40 rounded-full text-xs font-bold pixel-font mb-3">
+                <i class="fa-solid fa-circle-exclamation"></i> REFEREE'S RULES
+            </div>
+            <h2 class="pixel-font text-3xl sm:text-5xl font-black text-white mb-4">🚨 경기 규칙 및 퇴출 규정</h2>
+            <p class="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base">
+                공정한 경기와 즐거운 플레이를 위해 아래 규칙을 반드시 준수해야 합니다.<br>
+                위반 시 심판에 의해 <strong class="text-red-400 underline">경고 없이 즉시 퇴출(KICK/BAN)</strong> 처리됩니다.
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- Rule 1 -->
+            <div class="bg-slate-950/90 border-t-8 border-emerald-500 rounded-2xl p-6 shadow-2xl relative overflow-hidden group hover:border-emerald-400 transition-all">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                    <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-lg text-xs pixel-font font-bold">
+                        RULE 01
+                    </span>
+                    <div class="text-2xl text-emerald-400"><i class="fa-solid fa-handshake-simple"></i></div>
+                </div>
+                <h3 class="pixel-font text-xl font-bold text-white mb-2">공격 & 파괴 절대 금지</h3>
+                <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                    경기 중 <span class="text-emerald-400 font-semibold">다른 플레이어를 공격하거나 때리는 행위 금지!</span> 또한 정성껏 제작된 축구장 경기장 및 건축물을 부수는 행위도 불허합니다.
+                </p>
+                <div class="bg-emerald-950/60 p-3 rounded-xl border border-emerald-800/60 text-xs text-emerald-300 font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-shield text-emerald-400"></i>
+                    <span>매너 있는 스포츠맨십 준수</span>
+                </div>
+            </div>
+
+            <!-- Rule 2 -->
+            <div class="bg-slate-950/90 border-t-8 border-amber-500 rounded-2xl p-6 shadow-2xl relative overflow-hidden group hover:border-amber-400 transition-all">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                    <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-lg text-xs pixel-font font-bold">
+                        RULE 02 (퇴출 조건)
+                    </span>
+                    <div class="text-2xl text-amber-400"><i class="fa-solid fa-note-sticky"></i></div>
+                </div>
+                <h3 class="pixel-font text-xl font-bold text-white mb-2">타 팀 보물 은닉 금지</h3>
+                <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                    자신의 팀에 해당하는 보물만 수집해야 합니다. <span class="text-amber-400 font-semibold">다른 팀의 보물을 고의로 숨기거나 빼앗아 방해할 경우</span> 즉시 경기장에서 퇴출당합니다.
+                </p>
+                <div class="bg-amber-950/60 p-3 rounded-xl border border-amber-800/60 text-xs text-amber-300 font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                    <span>위반 시 즉시 퇴출 (RED CARD)</span>
+                </div>
+            </div>
+
+            <!-- Rule 3 -->
+            <div class="bg-slate-950/90 border-t-8 border-red-500 rounded-2xl p-6 shadow-2xl relative overflow-hidden group hover:border-red-400 transition-all">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+                    <span class="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/40 rounded-lg text-xs pixel-font font-bold">
+                        RULE 03 (퇴출 조건)
+                    </span>
+                    <div class="text-2xl text-red-500"><i class="fa-solid fa-door-closed"></i></div>
+                </div>
+                <h3 class="pixel-font text-xl font-bold text-white mb-2">무단 방 탈출 절대 금지</h3>
+                <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                    보물 5개를 모두 찾아 팀 상자에 넣지 않은 채 버그나 글리치로 <span class="text-red-400 font-semibold">방을 몰래 탈출하는 행위는 엄격히 금지</span>되며, 적발 시 몰수패 및 퇴출됩니다.
+                </p>
+                <div class="bg-red-950/60 p-3 rounded-xl border border-red-800/60 text-xs text-red-300 font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-ban text-red-400"></i>
+                    <span>정당한 보물 5개 완성 필수</span>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="squad" class="py-20 bg-slate-950/80 border-y-4 border-emerald-600/40 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="text-center mb-16">
+                <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-full text-xs font-bold pixel-font block w-max mx-auto mb-3">
+                    OPERATOR SQUAD ROSTER
+                </span>
+                <h2 class="pixel-font text-3xl sm:text-5xl font-black text-white mb-4">⚽ 월드 제작 운영진 (5명)</h2>
+                <p class="text-slate-300 max-w-2xl mx-auto text-sm sm:text-base">
+                    대한민국 축구 대표팀 테마 스킨을 착용한 5명의 운영진 카드입니다.<br>
+                    카드를 클릭하면 각 운영자의 **3D 스킨 캐릭터 시트**를 크게 확인할 수 있습니다!
+                </p>
+            </div>
+
+            <!-- Operators Roster Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                
+                <!-- Operator 1: 주연우 (팀장) -->
+                <div class="bg-slate-900 border-2 border-amber-500/60 rounded-2xl overflow-hidden shadow-2xl card-hover-effect flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/50 rounded-lg text-xs pixel-font font-bold">
+                                👑 팀장 / LEADER
+                            </span>
+                            <span class="text-xs text-amber-400 font-mono font-bold"><i class="fa-solid fa-shield-halved mr-1"></i>GK #1</span>
+                        </div>
+
+                        <!-- Image Container with _2 fallback support -->
+                        <div class="relative w-full h-64 bg-slate-950 rounded-xl mb-5 border-2 border-amber-500/40 overflow-hidden group cursor-pointer shadow-inner"
+                             onclick="openModal('축구 골키퍼 주연우_2.png', '주연우 (팀장) - 대한민국 대표팀 골키퍼 스킨', '주연우', '대한민국 축구 대표팀 1번 골키퍼 노란 유니폼 스킨. 전체 맵 기획 설계, 텔레포트 코딩, 비밀 보물 위치 숨기기 담당.')">
+                            
+                            <img src="축구 골키퍼 주연우_2.png" 
+                                 alt="축구 골키퍼 주연우 캐릭터 시트" 
+                                 class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                                 onerror="tryImageFallback(this, '축구 골키퍼 주연우.png', '주연우', 'GK #1', '#f59e0b', '대한민국 대표팀 노란 골키퍼 유니폼')">
+                            
+                            <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-amber-300 font-bold pixel-font text-sm gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-2xl"></i>
+                                <span>캐릭터 시트 확대보기</span>
+                            </div>
+                            
+                            <div class="absolute bottom-2 right-2 text-[10px] text-amber-300 bg-slate-950/90 px-2 py-0.5 rounded border border-amber-500/40 font-mono">
+                                📁 축구 골키퍼 주연우_2.png
+                            </div>
+                        </div>
+
+                        <h3 class="pixel-font text-2xl font-bold text-white mb-1">주연우 <span class="text-sm font-normal text-amber-400">(팀장)</span></h3>
+                        <p class="text-xs text-slate-400 mb-4"><i class="fa-solid fa-shirt text-amber-400 mr-1"></i> 대표팀 1번 노란 골키퍼 유니폼 스킨</p>
+
+                        <div class="space-y-2 text-xs sm:text-sm text-slate-300 border-t border-slate-800 pt-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-amber-400"></i>
+                                <span>전체 축구장 맵 메인 기획 및 구조 설계</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-amber-400"></i>
+                                <span>커맨드 블록 & 텔레포트 장치 코딩</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-amber-400"></i>
+                                <span>비밀 보물 위치 디자인 및 매설</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-500/10 px-6 py-3 border-t border-amber-500/30 text-xs text-amber-300 font-bold pixel-font flex justify-between items-center">
+                        <span>역할: 맵 기획 / 텔레포트 코딩 / 보물 숨기기</span>
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                </div>
+
+                <!-- Operator 2: 노도윤 (부팀장) -->
+                <div class="bg-slate-900 border-2 border-blue-500/60 rounded-2xl overflow-hidden shadow-2xl card-hover-effect flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/50 rounded-lg text-xs pixel-font font-bold">
+                                📋 부팀장 / SUB LEADER
+                            </span>
+                            <span class="text-xs text-blue-400 font-mono font-bold"><i class="fa-solid fa-user-tie mr-1"></i>COACH</span>
+                        </div>
+
+                        <!-- Image Container with _2 fallback support -->
+                        <div class="relative w-full h-64 bg-slate-950 rounded-xl mb-5 border-2 border-blue-500/40 overflow-hidden group cursor-pointer shadow-inner"
+                             onclick="openModal('축구 코치 노도윤_2.png', '노도윤 (부팀장) - 대한민국 대표팀 코치 스킨', '노도윤', '대한민국 축구 대표팀 코치 네이비 트레이닝복 스킨. 맵 기획 전략 수립 및 보물 위치 숨기기 담당.')">
+                            
+                            <img src="축구 코치 노도윤_2.png" 
+                                 alt="축구 코치 노도윤 캐릭터 시트" 
+                                 class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                                 onerror="tryImageFallback(this, '축구 코치 노도윤.png', '노도윤', 'COACH', '#3b82f6', '대한민국 대표팀 네이비 코치 스킨')">
+                            
+                            <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-blue-300 font-bold pixel-font text-sm gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-2xl"></i>
+                                <span>캐릭터 시트 확대보기</span>
+                            </div>
+
+                            <div class="absolute bottom-2 right-2 text-[10px] text-blue-300 bg-slate-950/90 px-2 py-0.5 rounded border border-blue-500/40 font-mono">
+                                📁 축구 코치 노도윤_2.png
+                            </div>
+                        </div>
+
+                        <h3 class="pixel-font text-2xl font-bold text-white mb-1">노도윤 <span class="text-sm font-normal text-blue-400">(부팀장)</span></h3>
+                        <p class="text-xs text-slate-400 mb-4"><i class="fa-solid fa-clipboard-user text-blue-400 mr-1"></i> 대표팀 네이비 코치 트레이닝복 스킨</p>
+
+                        <div class="space-y-2 text-xs sm:text-sm text-slate-300 border-t border-slate-800 pt-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-blue-400"></i>
+                                <span>축구장 맵 기획 및 세부 동선 설계</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-blue-400"></i>
+                                <span>난이도별 보물 위치 구성 및 숨기기</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-blue-400"></i>
+                                <span>3개 팀 밸런스 조정 및 게임 디렉팅</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-500/10 px-6 py-3 border-t border-blue-500/30 text-xs text-blue-300 font-bold pixel-font flex justify-between items-center">
+                        <span>역할: 맵 기획 / 보물 숨기기</span>
+                        <i class="fa-solid fa-compass"></i>
+                    </div>
+                </div>
+
+                <!-- Operator 3: 홍지한 (건축가) -->
+                <div class="bg-slate-900 border-2 border-red-500/60 rounded-2xl overflow-hidden shadow-2xl card-hover-effect flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-red-500/20 text-red-400 border border-red-500/50 rounded-lg text-xs pixel-font font-bold">
+                                🏗️ 건축 / BUILDER
+                            </span>
+                            <span class="text-xs text-red-400 font-mono font-bold"><i class="fa-solid fa-futbol mr-1"></i>FW #9</span>
+                        </div>
+
+                        <!-- Image Container with _2 fallback support -->
+                        <div class="relative w-full h-64 bg-slate-950 rounded-xl mb-5 border-2 border-red-500/40 overflow-hidden group cursor-pointer shadow-inner"
+                             onclick="openModal('축구 스트라이커 홍지한_2.png', '홍지한 (운영자) - 대한민국 대표팀 스트라이커 스킨', '홍지한', '대한민국 축구 대표팀 9번 스트라이커 안경 유니폼 스킨. 팀 3개의 처소 공간 메인 건축 담당.')">
+                            
+                            <img src="축구 스트라이커 홍지한_2.png" 
+                                 alt="축구 스트라이커 홍지한 캐릭터 시트" 
+                                 class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                                 onerror="tryImageFallback(this, '축구 스트라이커 홍지한.png', '홍지한', '#9 STRIKER', '#ef4444', '안경 착용 대표팀 9번 유니폼 스킨')">
+                            
+                            <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-red-300 font-bold pixel-font text-sm gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-2xl"></i>
+                                <span>캐릭터 시트 확대보기</span>
+                            </div>
+
+                            <div class="absolute bottom-2 right-2 text-[10px] text-red-300 bg-slate-950/90 px-2 py-0.5 rounded border border-red-500/40 font-mono">
+                                📁 축구 스트라이커 홍지한_2.png
+                            </div>
+                        </div>
+
+                        <h3 class="pixel-font text-2xl font-bold text-white mb-1">홍지한 <span class="text-sm font-normal text-red-400">(운영자)</span></h3>
+                        <p class="text-xs text-slate-400 mb-4"><i class="fa-solid fa-glasses text-red-400 mr-1"></i> 대표팀 9번 안경 착용 빨간 유니폼 스킨</p>
+
+                        <div class="space-y-2 text-xs sm:text-sm text-slate-300 border-t border-slate-800 pt-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-red-400"></i>
+                                <span>팀 3개의 처소 베이스 및 프레임 건축</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-red-400"></i>
+                                <span>팀 스폰 존 & 보물 보관 상자 구역 제작</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-red-400"></i>
+                                <span>경기장 외부 외벽 디테일링</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-red-500/10 px-6 py-3 border-t border-red-500/30 text-xs text-red-300 font-bold pixel-font flex justify-between items-center">
+                        <span>역할: 팀 3개의 처소 만들기</span>
+                        <i class="fa-solid fa-hammer"></i>
+                    </div>
+                </div>
+
+                <!-- Operator 4: 김서우 (건축가) -->
+                <div class="bg-slate-900 border-2 border-rose-500/60 rounded-2xl overflow-hidden shadow-2xl card-hover-effect flex flex-col justify-between">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-rose-500/20 text-rose-400 border border-rose-500/50 rounded-lg text-xs pixel-font font-bold">
+                                🧱 건축 / BUILDER
+                            </span>
+                            <span class="text-xs text-rose-400 font-mono font-bold"><i class="fa-solid fa-fire mr-1"></i>RED DEVILS</span>
+                        </div>
+
+                        <!-- Image Container with _2 fallback support -->
+                        <div class="relative w-full h-64 bg-slate-950 rounded-xl mb-5 border-2 border-rose-500/40 overflow-hidden group cursor-pointer shadow-inner"
+                             onclick="openModal('축구 붉은 악마 김서우.png', '김서우 (운영자) - 대한민국 붉은 악마 응원단 스킨', '김서우', '대한민국 대표팀 응원단 붉은 악마 머리띠 스킨. 팀 3개의 처소 내부 디자인 및 보안 인테리어 건축 담당.')">
+                            
+                            <img src="축구 붉은 악마 김서우.png" 
+                                 alt="축구 붉은 악마 김서우 캐릭터 시트" 
+                                 class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                                 onerror="tryImageFallback(this, '축구 룱은 악마 김서우.png', '김서우', 'RED DEVILS', '#f43f5e', '붉은 악마 머리띠 응원단 스킨')">
+                            
+                            <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-rose-300 font-bold pixel-font text-sm gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-2xl"></i>
+                                <span>캐릭터 시트 확대보기</span>
+                            </div>
+
+                            <div class="absolute bottom-2 right-2 text-[10px] text-rose-300 bg-slate-950/90 px-2 py-0.5 rounded border border-rose-500/40 font-mono">
+                                📁 축구 붉은 악마 김서우.png
+                            </div>
+                        </div>
+
+                        <h3 class="pixel-font text-2xl font-bold text-white mb-1">김서우 <span class="text-sm font-normal text-rose-400">(운영자)</span></h3>
+                        <p class="text-xs text-slate-400 mb-4"><i class="fa-solid fa-bullhorn text-rose-400 mr-1"></i> 붉은 악마 머리띠 & 응원단 스킨</p>
+
+                        <div class="space-y-2 text-xs sm:text-sm text-slate-300 border-t border-slate-800 pt-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-rose-400"></i>
+                                <span>팀 3개 처소 내부 인테리어 시공</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-rose-400"></i>
+                                <span>팀별 고유 색상 디자인 및 안전 지대 배치</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-rose-400"></i>
+                                <span>축구장 관람석 디테일 조경 건축</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-rose-500/10 px-6 py-3 border-t border-rose-500/30 text-xs text-rose-300 font-bold pixel-font flex justify-between items-center">
+                        <span>역할: 팀 3개의 처소 만들기</span>
+                        <i class="fa-solid fa-cubes"></i>
+                    </div>
+                </div>
+
+                <!-- Operator 5: 김상우 (파크루 Master) -->
+                <div class="bg-slate-900 border-2 border-emerald-500/60 rounded-2xl overflow-hidden shadow-2xl card-hover-effect flex flex-col justify-between md:col-span-2 lg:col-span-1 lg:col-start-2">
+                    <div class="p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 rounded-lg text-xs pixel-font font-bold">
+                                🏃 파크루 / PARKOUR
+                            </span>
+                            <span class="text-xs text-emerald-400 font-mono font-bold"><i class="fa-solid fa-bolt mr-1"></i>ACE #7</span>
+                        </div>
+
+                        <!-- Image Container with _2 fallback support -->
+                        <div class="relative w-full h-64 bg-slate-950 rounded-xl mb-5 border-2 border-emerald-500/40 overflow-hidden group cursor-pointer shadow-inner"
+                             onclick="openModal('축구 스트라이커 김상우_2.png', '김상우 (운영자) - 대한민국 대표팀 7번 에이스 스킨', '김상우', '대한민국 대표팀 7번 에이스 스트라이커 스킨. 장애물 파크루 코스 제작 및 보물 위치 숨기기 담당.')">
+                            
+                            <img src="축구 스트라이커 김상우_2.png" 
+                                 alt="축구 스트라이커 김상우 캐릭터 시트" 
+                                 class="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
+                                 onerror="tryImageFallback(this, '축구 스트라이커 김상우.png', '김상우', '#7 ACE', '#10b981', '대한민국 대표팀 7번 에이스 유니폼')">
+                            
+                            <div class="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-emerald-300 font-bold pixel-font text-sm gap-2">
+                                <i class="fa-solid fa-magnifying-glass-plus text-2xl"></i>
+                                <span>캐릭터 시트 확대보기</span>
+                            </div>
+
+                            <div class="absolute bottom-2 right-2 text-[10px] text-emerald-300 bg-slate-950/90 px-2 py-0.5 rounded border border-emerald-500/40 font-mono">
+                                📁 축구 스트라이커 김상우_2.png
+                            </div>
+                        </div>
+
+                        <h3 class="pixel-font text-2xl font-bold text-white mb-1">김상우 <span class="text-sm font-normal text-emerald-400">(운영자)</span></h3>
+                        <p class="text-xs text-slate-400 mb-4"><i class="fa-solid fa-person-running text-emerald-400 mr-1"></i> 대표팀 7번 에이스 유니폼 & 신가드 스킨</p>
+
+                        <div class="space-y-2 text-xs sm:text-sm text-slate-300 border-t border-slate-800 pt-3">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-emerald-400"></i>
+                                <span>스릴 만점 장애물 파크루 점프 코스 설계</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-emerald-400"></i>
+                                <span>파크루 정상 지형 및 지붕 위 보물 숨기기</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-check text-emerald-400"></i>
+                                <span>점프 난이도 검증 및 트랩 테스트</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-emerald-500/10 px-6 py-3 border-t border-emerald-500/30 text-xs text-emerald-300 font-bold pixel-font flex justify-between items-center">
+                        <span>역할: 보물 숨기기 / 파크루 만들기</span>
+                        <i class="fa-solid fa-person-running"></i>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="pitch-highlights" class="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <div class="text-center mb-12">
+            <span class="px-3 py-1 bg-amber-500/20 text-amber-400 border border-amber-500/40 rounded-full text-xs font-bold pixel-font inline-block mb-3">
+                STADIUM MAP HIGHLIGHTS
+            </span>
+            <h2 class="pixel-font text-3xl sm:text-4xl font-bold text-white mb-3">🏟️ 주요 경기장 구역 안내</h2>
+            <p class="text-slate-300 max-w-xl mx-auto text-sm sm:text-base">
+                축구장 탈출맵의 승패를 가르는 4가지 주요 스팟입니다!
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="bg-slate-900/90 rounded-2xl p-6 border border-emerald-500/40 shadow-xl">
+                <div class="w-12 h-12 bg-emerald-500/20 text-emerald-400 rounded-xl flex items-center justify-center text-2xl mb-4 border border-emerald-500/40">
+                    <i class="fa-solid fa-house-user"></i>
+                </div>
+                <h4 class="pixel-font text-lg font-bold text-white mb-2">3개 팀 처소</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    홍지한, 김서우 제작! 3개 팀 각각의 스폰 지역이자 수집한 보물 5개를 채워 넣는 안전 보관 처소입니다.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/90 rounded-2xl p-6 border border-amber-500/40 shadow-xl">
+                <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-xl flex items-center justify-center text-2xl mb-4 border border-amber-500/40">
+                    <i class="fa-solid fa-stairs"></i>
+                </div>
+                <h4 class="pixel-font text-lg font-bold text-white mb-2">김상우 파크루존</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    높은 스탠드와 공중 구조물을 뛰어넘는 파크루 존! 섬세한 점프 컨트롤이 요구됩니다.
+                </p>
+            </div>
+
+            <div class="bg-slate-900/90 rounded-2xl p-6 border border-blue-500/40 shadow-xl">
+                <div class="w-12 h-12 bg-blue-500/20 text-blue-400 rounded-xl flex items-center justify-center text-2xl mb-4 border border-blue-500/40">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <h4 class="pixel-font text-lg font-bold text-white mb-2">주연우 텔포 게이트</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    보물 5개를 모두 채운 후, 골대 안으로 골을 넣으면 마법처럼 작동하는 텔레포트 최종 탈출문!
+                </p>
+            </div>
+
+            <div class="bg-slate-900/90 rounded-2xl p-6 border border-red-500/40 shadow-xl">
+                <div class="w-12 h-12 bg-red-500/20 text-red-400 rounded-xl flex items-center justify-center text-2xl mb-4 border border-red-500/40">
+                    <i class="fa-solid fa-gem"></i>
+                </div>
+                <h4 class="pixel-font text-lg font-bold text-white mb-2">비밀 보물 5스팟</h4>
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    주연우, 노도윤, 김상우 운영진이 교묘하게 숨겨둔 보물 매설 지역! 팀워크를 발휘해 탐색하세요.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-16 bg-gradient-to-r from-emerald-950 via-slate-950 to-green-950 border-t-4 border-emerald-500 relative overflow-hidden text-center">
+        <div class="max-w-4xl mx-auto px-4 relative z-10">
+            <div class="inline-block p-3 bg-emerald-500/20 rounded-full text-emerald-400 text-3xl mb-4 border border-emerald-500/40 animate-bounce">
+                ⚽
+            </div>
+            <h2 class="pixel-font text-3xl sm:text-5xl font-black text-white mb-4">
+                준비되셨나요? 지금 축구장에 입장하세요!
+            </h2>
+            <p class="text-slate-300 text-sm sm:text-base mb-8">
+                3개 팀 중 과연 어느 팀이 보물 5개를 먼저 채우고 골을 성공시켜 탈출할까요?
+            </p>
+
+            <div class="inline-flex flex-col sm:flex-row items-center gap-4 bg-slate-900/90 p-3 rounded-2xl border-2 border-emerald-500/50 shadow-2xl">
+                <div class="px-5 py-2 font-mono text-emerald-300 text-sm sm:text-base font-extrabold bg-slate-950 rounded-xl border border-slate-800">
+                    <i class="fa-solid fa-server mr-2 text-emerald-400"></i>mc.soccer-escape.kr:25565
+                </div>
+                <button onclick="copyServerIP()" class="pixel-font px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black rounded-xl transition-all flex items-center gap-2 border border-emerald-300 shadow-lg">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>서버 주소 복사하기</span>
+                </button>
+            </div>
+
+            <p id="copy-toast" class="text-xs text-amber-400 mt-3 font-mono opacity-0 transition-opacity">
+                ✨ 서버 주소가 복사되었습니다! 마인크래프트에서 [멀티플레이] -> [서버 추가]에 입력하세요.
+            </p>
+        </div>
+    </section>
+
+    <footer class="bg-slate-950 py-10 border-t border-slate-900 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-3">
+            <div class="pixel-font text-sm text-slate-300">
+                골을 넣어 축구장을 탈출게임 &copy; Minecraft Stadium World
+            </div>
+            <p class="text-slate-500">
+                운영진: 주연우(팀장), 노도윤(부팀장), 홍지한, 김서우, 김상우<br>
+                대한민국 축구 대표팀 스킨 테마 마인크래프트 탈출맵 프로젝트
+            </p>
+        </div>
+    </footer>
+
+    <div id="image-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md hidden flex items-center justify-center p-4 transition-all" onclick="closeModal()">
+        <div class="relative max-w-4xl w-full bg-slate-900 border-2 border-emerald-500 rounded-2xl p-4 sm:p-6 shadow-2xl overflow-hidden" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                <h3 id="modal-title" class="pixel-font text-lg sm:text-xl font-bold text-emerald-400">캐릭터 시트 상세</h3>
+                <button onclick="closeModal()" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors border border-slate-700">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="max-h-[75vh] overflow-y-auto rounded-xl bg-slate-950 p-2 flex items-center justify-center border border-slate-800">
+                <img id="modal-img" src="" alt="캐릭터 시트 확대" class="max-w-full h-auto rounded-lg shadow-2xl">
+                <div id="modal-fallback" class="w-full hidden"></div>
+            </div>
+            <div class="mt-4 text-center text-xs text-slate-400 pixel-font">
+                ⚽ 마인크래프트 스킨 도면 및 3D 캐릭터 명세서
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
